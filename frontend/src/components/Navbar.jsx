@@ -1,0 +1,115 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, User, LogOut, Settings } from "lucide-react";
+import { useState } from "react";
+const Navbar = () => {
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  return (
+    <nav className="sticky top-0 z-50 bg-slate-800 shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <button
+              onClick={() => navigate("/")}
+              className="text-xl font-bold text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              MHope
+            </button>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md mx-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="search"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                placeholder="Search resources, guides, or support..."
+              />
+            </div>
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center">
+            <div className="relative inline-block text-left">
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="inline-flex items-center justify-center rounded-full h-10 w-10 overflow-hidden border-2 border-blue-100 hover:border-blue-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="user-menu"
+                  aria-expanded={isMenuOpen}
+                  aria-haspopup="true"
+                >
+                  <img
+                    className="h-full w-full object-cover"
+                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                    alt="User profile"
+                  />
+                </button>
+              </div>
+
+              {isMenuOpen &&(<div
+                className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="user-menu"
+              >
+                <div className="py-1" role="none">
+                  <div className="flex items-center px-4 py-2 text-sm text-gray-700">
+                    <img
+                      className="h-8 w-8 rounded-full mr-2"
+                      src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                      alt="User profile"
+                    />
+                    <div>
+                      <p className="font-medium">Sarah Johnson</p>
+                      <p className="text-xs text-gray-500">sarah@example.com</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="py-1" role="none">
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    role="menuitem"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <User className="mr-3 h-4 w-4" />
+                    Profile
+                  </button>
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    role="menuitem"
+                    onClick={() => navigate("/settings")}
+                  >
+                    <Settings className="mr-3 h-4 w-4" />
+                    Settings
+                  </button>
+                </div>
+                <div className="py-1" role="none">
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    role="menuitem"
+                    onClick={() => {
+                      localStorage.removeItem("user");
+                      navigate("/login");
+                    }}
+                  >
+                    <LogOut className="mr-3 h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              </div>)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
