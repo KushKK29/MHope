@@ -12,8 +12,12 @@ const appointmentSchema = new mongoose.Schema(
       ref: "Doctor",
       required: true,
     },
-    date: {
+    appointmentDate: {
       type: Date,
+      required: true,
+    },
+    date: {
+      type: String,
       required: true,
     },
     time: {
@@ -22,19 +26,46 @@ const appointmentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Completed", "Cancelled"],
-      default: "Pending",
+      enum: ["pending", "confirmed", "completed", "cancelled"],
+      default: "pending",
     },
     service: {
       type: String,
       required: true,
     },
+    fee: {
+      type: Number,
+      default: 0,
+    },
     notes: {
       type: String,
     },
+    symptoms: {
+      type: String,
+    },
+    diagnosis: {
+      type: String,
+    },
+    prescription: {
+      type: String,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+// Virtual field for formatted date
+appointmentSchema.virtual("formattedDate").get(function () {
+  return this.appointmentDate ? this.appointmentDate.toLocaleDateString() : "";
+});
+
+// Virtual field for formatted time
+appointmentSchema.virtual("formattedTime").get(function () {
+  return this.appointmentDate ? this.appointmentDate.toLocaleTimeString() : "";
+});
 
 const Appointment = mongoose.model("Appointment", appointmentSchema);
 

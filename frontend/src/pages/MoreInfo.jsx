@@ -1,52 +1,44 @@
-import {
-  ChevronDownIcon,
-  MapPinIcon,
-  AcademicCapIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import { useState, useEffect } from "react";
 import { useDetails } from "../context/detailsContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAdmin } from "../context/adminContext";
-import { Combobox } from "@headlessui/react";
-import { motion } from "framer-motion";
-
-// Qualification suggestions
-const qualificationSuggestions = [
-  "MBBS",
-  "MD",
-  "MS",
-  "BDS",
-  "MDS",
-  "BAMS",
-  "BHMS",
-  "BUMS",
-  "BPT",
-  "MPT",
-  "B.Sc Nursing",
-  "M.Sc Nursing",
-  "B.Pharm",
-  "M.Pharm",
-  "BMLT",
-  "DMLT",
-  "BBA Healthcare",
-  "MBA Healthcare",
-];
+import { Country, State, City } from "country-state-city";
 
 export default function MoreInfo() {
+  const {badeg,setBadge} = useAdmin();
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  useEffect(() => {
+    const countryList = Country.getAllCountries();
+    setCountries(countryList);
+  }, []);
+
   const [address, setAddress] = useState({
     street: "",
     city: "",
     state: "",
+    stateCode: "",
     country: "India",
+    countryCode: "IN",
     zip: "",
   });
+  useEffect(() => {
+    const stateList = State.getStatesOfCountry(address.countryCode);
+    setStates(stateList);
+    setAddress((prev) => ({ ...prev, state: "", city: "" }));
+    setCities([]);
+  }, [address.countryCode]);
 
-  const [locationSuggestions, setLocationSuggestions] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [qualificationQuery, setQualificationQuery] = useState("");
+  useEffect(() => {
+    const cityList = City.getCitiesOfState(
+      address.countryCode,
+      address.stateCode
+    );
+    setCities(cityList);
+  }, [address.stateCode]);
 
   const navigate = useNavigate();
   const {
@@ -65,52 +57,12 @@ export default function MoreInfo() {
   const user = JSON.parse(localStorage.getItem("user"));
   const id = user._id;
   const role = user.role;
-
-  // Filtered qualification suggestions
-  const filteredQualifications = qualificationSuggestions.filter((q) =>
-    q.toLowerCase().includes(qualificationQuery.toLowerCase())
-  );
-
-  // Location search handler
-  const handleLocationSearch = async (query) => {
-    if (query.length < 3) return;
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )}&countrycodes=in,us,ca,gb&limit=5`
-      );
-      const data = await response.json();
-      setLocationSuggestions(data);
-    } catch (error) {
-      toast.error("Failed to fetch location suggestions");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddress((prev) => ({
       ...prev,
       [name]: value,
     }));
-    if (name === "city" || name === "state") {
-      handleLocationSearch(value);
-    }
-  };
-
-  const handleLocationSelect = (location) => {
-    setSelectedLocation(location);
-    setAddress((prev) => ({
-      ...prev,
-      city: location.address.city || location.address.town || "",
-      state: location.address.state || "",
-      country: location.address.country || prev.country,
-      zip: location.address.postcode || "",
-    }));
-    setLocationSuggestions([]);
   };
 
   const navigateToDashboard = () => {
@@ -121,43 +73,37 @@ export default function MoreInfo() {
     } else if (role === "Patient") {
       navigate("/patient/dashboard");
     } else if (role === "Receptionist") {
-      navigate("/receptionist/dashboard");
+      navigate("/receptionist/dashboard"); // Default dashboard
     } else {
       navigate("/unauthorised");
     }
-    toast.success("Welcome to your dashboard!");
+    toast.success("Welcome to your dashboard! at moreinfo");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      const updatedData = {
-        fullName,
-        email,
-        phone,
-        role,
-        address: {
-          street: address.street,
-          city: address.city,
-          state: address.state,
-          country: address.country,
-          zip: address.zip,
-        },
-        specialist,
-        experience,
-        qualification,
-      };
+    const updatedData = {
+      fullName,
+      email,
+      phone,
+      role,
+      address: {
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        country: address.country,
+        zip: address.zip,
+      },
+      specialist,
+      experience,
+      qualification,
+    };
 
-      await handleUpdate(id, updatedData);
-      toast.success("Profile updated successfully");
-      navigateToDashboard();
-    } catch (error) {
-      toast.error("Failed to update profile");
-    } finally {
-      setIsLoading(false);
-    }
+    await handleUpdate(id, updatedData);
+    toast.success("Profile updated successfully");
+    setBadge(true);
+    navigateToDashboard();
   };
 
   const handleSkip = () => {
@@ -165,320 +111,273 @@ export default function MoreInfo() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-gray-50"
-    >
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 to-white py-8 px-2">
       <form
-        className="p-6 m-4 bg-white rounded-xl shadow-lg w-full max-w-3xl space-y-6"
+        className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl shadow-black p-8 border border-gray-100"
         onSubmit={handleSubmit}
       >
-        <div className="space-y-4">
-          <div className="border-b border-gray-200 pb-4">
-            <h2 className="text-3xl font-bold text-gray-900 text-center">
-              Complete Your Profile
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 text-center">
-              Please provide your details to get started
-            </p>
+        <div className="mb-8 border-b border-gray-200 pb-4 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-1">
+            Profile Information
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Fill in your details to complete your profile
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Full Name
+            </label>
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              autoComplete="name"
+              value={fullName}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
           </div>
-
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Full Name
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    autoComplete="name"
-                    value={fullName}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email address
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="off"
-                    value={email}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Phone Number
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="text"
-                    value={phone}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {(role === "Doctor" || role === "Receptionist") && (
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="experience"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Experience in Years
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      id="experience"
-                      name="experience"
-                      type="number"
-                      min="0"
-                      value={experience}
-                      className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      onChange={(e) => setExperience(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {(role === "Doctor" || role === "Receptionist") && (
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="qualification"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Qualification
-                  </label>
-                  <div className="mt-1">
-                    <Combobox value={qualification} onChange={setQualification}>
-                      <div className="relative">
-                        <Combobox.Input
-                          className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          onChange={(e) =>
-                            setQualificationQuery(e.target.value)
-                          }
-                          displayValue={(q) => q}
-                        />
-                        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                          {filteredQualifications.map((q) => (
-                            <Combobox.Option
-                              key={q}
-                              value={q}
-                              className={({ active }) =>
-                                `relative cursor-pointer select-none py-2 pl-3 pr-9 ${
-                                  active
-                                    ? "bg-indigo-600 text-white"
-                                    : "text-gray-900"
-                                }`
-                              }
-                            >
-                              <div className="flex items-center">
-                                <AcademicCapIcon className="h-5 w-5 mr-2" />
-                                <span>{q}</span>
-                              </div>
-                            </Combobox.Option>
-                          ))}
-                        </Combobox.Options>
-                      </div>
-                    </Combobox>
-                  </div>
-                </div>
-              )}
-
-              {role === "Doctor" && (
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="specialist"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Specialisation
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      id="specialist"
-                      name="specialist"
-                      value={specialist}
-                      onChange={(e) => setspecialist(e.target.value)}
-                      className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    >
-                      <option value="">Select Specialisation</option>
-                      <option value="Cardiologist">Cardiologist</option>
-                      <option value="Neurologist">Neurologist</option>
-                      <option value="Orthopedic">Orthopedic</option>
-                      <option value="Dermatologist">Dermatologist</option>
-                      <option value="Pediatrician">Pediatrician</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Country
-                </label>
-                <div className="mt-1">
-                  <select
-                    id="country"
-                    name="country"
-                    autoComplete="off"
-                    value={address.country}
-                    onChange={handleAddressChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option>India</option>
-                    <option>United States</option>
-                    <option>Canada</option>
-                    <option>United Kingdom</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="col-span-full">
-                <label
-                  htmlFor="street"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Street address
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="street"
-                    name="street"
-                    type="text"
-                    autoComplete="off"
-                    value={address.street}
-                    onChange={handleAddressChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2 sm:col-start-1">
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  City
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    id="city"
-                    name="city"
-                    type="text"
-                    autoComplete="off"
-                    value={address.city}
-                    onChange={handleAddressChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {locationSuggestions.length > 0 && (
-                    <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      {locationSuggestions.map((location) => (
-                        <li
-                          key={location.place_id}
-                          className="relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white"
-                          onClick={() => handleLocationSelect(location)}
-                        >
-                          <div className="flex items-center">
-                            <MapPinIcon className="h-5 w-5 mr-2" />
-                            <span>{location.display_name}</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="state"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  State / Province
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="state"
-                    name="state"
-                    type="text"
-                    autoComplete="off"
-                    value={address.state}
-                    onChange={handleAddressChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="zip"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  ZIP / Postal code
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="zip"
-                    name="zip"
-                    type="text"
-                    autoComplete="off"
-                    value={address.zip}
-                    onChange={handleAddressChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                </div>
-              </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="off"
+              value={email}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              value={phone}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
+          {(role === "Doctor" || role === "Receptionist") && (
+            <div>
+              <label
+                htmlFor="experience"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Experience in Years
+              </label>
+              <input
+                id="experience"
+                name="experience"
+                type="text"
+                value={experience}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                onChange={(e) => setExperience(e.target.value)}
+              />
             </div>
+          )}
+          {(role === "Doctor" || role === "Receptionist") && (
+            <div>
+              <label
+                htmlFor="qualification"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Qualification
+              </label>
+              <input
+                id="qualification"
+                name="qualification"
+                type="text"
+                autoComplete="on bg-gray-400 text-black"
+                value={qualification}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                onChange={(e) => setQualification(e.target.value)}
+              />
+            </div>
+          )}
+          {role === "Doctor" && (
+            <div>
+              <label
+                htmlFor="specialist"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Specialisation
+              </label>
+              <select
+                id="specialist"
+                name="specialist"
+                value={specialist}
+                onChange={(e) => setspecialist(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <option value="">Select Specialisation</option>
+                <option value="Cardiologist">Cardiologist</option>
+                <option value="Neurologist">Neurologist</option>
+                <option value="Orthopedic">Orthopedic</option>
+                <option value="Dermatologist">Dermatologist</option>
+                <option value="Pediatrician">Pediatrician</option>
+              </select>
+            </div>
+          )}
+          <div>
+            <label
+              htmlFor="country"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Country
+            </label>
+            <select
+              id="country"
+              name="country"
+              value={address.countryCode}
+              onChange={(e) => {
+                const country = countries.find(
+                  (c) => c.isoCode === e.target.value
+                );
+                setAddress((prev) => ({
+                  ...prev,
+                  country: country?.name || "",
+                  countryCode: e.target.value,
+                }));
+              }}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2"
+              required
+            >
+              <option value="">Select Country</option>
+              {countries.map((country) => (
+                <option key={country.isoCode} value={country.isoCode}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="state"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              State
+            </label>
+            <select
+              id="state"
+              name="state"
+              value={address.stateCode}
+              onChange={(e) => {
+                const state = states.find((s) => s.isoCode === e.target.value);
+                setAddress((prev) => ({
+                  ...prev,
+                  state: state?.name || "",
+                  stateCode: e.target.value,
+                }));
+              }}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2"
+              required
+            >
+              <option value="">Select State</option>
+              {states.map((state) => (
+                <option key={state.isoCode} value={state.isoCode}>
+                  {state.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="city"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              City
+            </label>
+            <select
+              id="city"
+              name="city"
+              value={address.city}
+              onChange={(e) =>
+                setAddress((prev) => ({ ...prev, city: e.target.value }))
+              }
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2"
+              required
+            >
+              <option value="">Select City</option>
+              {cities.map((city) => (
+                <option key={city.name} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="zip"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              ZIP / Postal code
+            </label>
+            <input
+              id="zip"
+              name="zip"
+              type="text"
+              autoComplete="off"
+              value={address.zip}
+              onChange={handleAddressChange}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label
+              htmlFor="street"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Street address
+            </label>
+            <input
+              id="street"
+              name="street"
+              type="text"
+              autoComplete="off"
+              value={address.street}
+              onChange={handleAddressChange}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            />
           </div>
         </div>
-
-        <div className="mt-6 flex items-center justify-end gap-x-6">
+        <div className="mt-8 flex items-center justify-end gap-x-4">
           <button
             type="button"
-            className="text-sm font-semibold text-gray-900 hover:text-gray-700"
+            className="text-sm font-semibold text-gray-700 hover:text-indigo-600 transition"
             onClick={handleSkip}
           >
             Skip
           </button>
           <button
             type="submit"
-            disabled={isLoading}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition"
           >
-            {isLoading ? "Saving..." : "Save"}
+            Save
           </button>
         </div>
       </form>
-    </motion.div>
+    </div>
   );
 }

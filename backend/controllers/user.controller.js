@@ -12,28 +12,64 @@ import {
 
 export const signup = async (req, res) => {
   try {
+    console.log("Signup request received:", req.body);
     const { fullName, email, password, role } = req.body;
 
+    // Validate required fields
     if (!fullName || !email || !password || !role) {
-      return res.status(400).json({ message: "Please fill all fields" });
+      console.log("Missing required fields:", {
+        fullName,
+        email,
+        password,
+        role,
+      });
+      return res.status(400).json({
+        message: "Please fill all fields",
+        missing: {
+          fullName: !fullName,
+          email: !email,
+          password: !password,
+          role: !role,
+        },
+      });
     }
 
+    // Validate password length
     if (password.length < 6) {
+      console.log("Password too short");
+      return res.status(400).json({
+        message: "Password must be at least 6 characters",
+        passwordLength: password.length,
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log("Invalid email format:", email);
       return res
         .status(400)
-        .json({ message: "Password must be at least 6 characters" });
+        .json({ message: "Please enter a valid email address" });
     }
 
-    const userExists =
-      (await User.findOne({ email })) ||
-      (await Doctor.findOne({ email })) ||
-      (await Receptionist.findOne({ email })) ||
-      (await Patient.findOne({ email }));
+    // Check if user exists
+    console.log("Checking if user exists with email:", email);
+    const userExists = await Promise.all([
+      User.findOne({ email }),
+      Doctor.findOne({ email }),
+      Receptionist.findOne({ email }),
+      Patient.findOne({ email }),
+    ]);
 
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+    if (userExists.some((user) => user !== null)) {
+      console.log("User already exists with email:", email);
+      return res
+        .status(400)
+        .json({ message: "User already exists with this email" });
     }
 
+    // Handle different roles
+    console.log("Processing signup for role:", role);
     if (role === "Doctor") {
       return await createDoctor(req, res);
     } else if (role === "Patient") {
@@ -41,6 +77,7 @@ export const signup = async (req, res) => {
     } else if (role === "Receptionist") {
       return await createReceptionist(req, res);
     } else if (role === "Admin") {
+      console.log("Creating admin user");
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = new User({
@@ -51,18 +88,29 @@ export const signup = async (req, res) => {
       });
 
       await user.save();
+      console.log("Admin user created successfully");
 
-      return res
-        .status(201)
-        .json({ message: "User created successfully", user });
+      // Don't send password back in response
+      const userResponse = { ...user.toObject() };
+      delete userResponse.password;
+
+      return res.status(201).json({
+        message: "User created successfully",
+        user: userResponse,
+      });
     } else {
-      return res.status(400).json({ message: "Invalid role" });
+      console.log("Invalid role provided:", role);
+      return res.status(400).json({
+        message: "Invalid role",
+        allowedRoles: ["Doctor", "Patient", "Receptionist", "Admin"],
+      });
     }
   } catch (error) {
-    console.log(error.message);
+    console.error("Signup error:", error);
     return res.status(500).json({
       message: "Internal Server Error at signup",
       error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 };

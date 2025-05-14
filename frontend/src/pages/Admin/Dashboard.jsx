@@ -215,8 +215,6 @@ const PieChartComponent = ({ data }) => {
   return <Pie data={chartData} options={options} className="max-h-64" />;
 };
 
-
-
 const Dashboard = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">

@@ -9,56 +9,68 @@ import { UserIcon, EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/solid";
 
 const ManageAppointments = () => {
   const navigate = useNavigate();
-  const { appointments, getAllAppointments, deleteappointment, setUser } = useAdmin();
+  const { appointments, getAllAppointments, deleteAppointment, setUser } =
+    useAdmin();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
-  // Filter appointments based on search query and category
-  const filteredappointments = appointments?.appointments?.filter((appointment) => {
+  // Filter appointments based on search query and status
+  const filteredAppointments = appointments?.filter((appointment) => {
     const matchesSearch =
-      appointment.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      appointment.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      appointment.phone.toLowerCase().includes(searchQuery.toLowerCase());
+      appointment.patientName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      appointment.patientEmail
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      appointment.patientPhone
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      appointment.doctorName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      appointment.service.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      selectedCategory === "all" || appointment.category === selectedCategory;
+    const matchesStatus =
+      selectedStatus === "all" ||
+      appointment.status.toLowerCase() === selectedStatus.toLowerCase();
 
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesStatus;
   });
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 8;
-  const indexOfLastappointment = currentPage * appointmentsPerPage;
-  const indexOfFirstappointment = indexOfLastappointment - appointmentsPerPage;
-  const currentappointments = filteredappointments?.slice(
-    indexOfFirstappointment,
-    indexOfLastappointment
+  const indexOfLastAppointment = currentPage * appointmentsPerPage;
+  const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
+  const currentAppointments = filteredAppointments?.slice(
+    indexOfFirstAppointment,
+    indexOfLastAppointment
   );
 
-  const totalPages = filteredappointments
-    ? Math.ceil(filteredappointments.length / appointmentsPerPage)
+  const totalPages = filteredAppointments
+    ? Math.ceil(filteredAppointments.length / appointmentsPerPage)
     : 0;
 
   useEffect(() => {
-    const fetchappointments = async () => {
+    const fetchAppointments = async () => {
       await getAllAppointments();
     };
-    fetchappointments();
+    fetchAppointments();
   }, []);
 
-  // Reset to first page when search query or category changes
+  // Reset to first page when search query or status changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedStatus]);
 
   // Handle delete appointment
   const handleDelete = async (e, appointment) => {
-    e.stopPropagation(); // Prevent row click when delete button is clicked
+    e.stopPropagation();
     try {
-      const res = await deleteappointment(appointment);
+      const res = await deleteAppointment(appointment._id);
       if (res) {
-        toast.success("appointment Deleted Successfully");
+        toast.success("Appointment Deleted Successfully");
       }
     } catch (error) {
       console.error(error);
@@ -72,6 +84,26 @@ const ManageAppointments = () => {
     navigate("/profile");
   };
 
+  // Format date for display
+  const formatDate = (date) => {
+    if (!date || date === "Invalid Date") return "Not scheduled";
+    return new Date(date).toLocaleDateString();
+  };
+
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
       <Sidebar />
@@ -80,45 +112,41 @@ const ManageAppointments = () => {
           {/* Header Section */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">
-              Manage appointments
+              Manage Appointments
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              View and manage all Appointment records in the system
+              View and manage all appointment records in the system
             </p>
           </div>
 
           {/* Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <StatCard
-              title="Total appointments"
-              value={appointments?.appointments?.length || 0}
-              icon={<UserIcon className=" text-indigo-600" />}
+              title="Total Appointments"
+              value={appointments?.length || 0}
+              icon={<UserIcon className="text-indigo-600" />}
               bgColor="bg-indigo-50"
               textColor="text-indigo-700"
             />
             <StatCard
-              title="Active Appointments"
+              title="Pending Appointments"
               value={
-                appointments?.appointments?.filter((p) => p.hasActiveAppointment)
-                  ?.length || 0
+                appointments?.filter(
+                  (a) => a.status.toLowerCase() === "pending"
+                )?.length || 0
               }
-              icon={<EnvelopeIcon className=" text-emerald-600" />}
+              icon={<EnvelopeIcon className="text-emerald-600" />}
               bgColor="bg-emerald-50"
               textColor="text-emerald-700"
             />
             <StatCard
-              title="New appointments This Month"
+              title="Completed Appointments"
               value={
-                appointments?.appointments?.filter((p) => {
-                  const createdDate = new Date(p.createdAt);
-                  const currentDate = new Date();
-                  return (
-                    createdDate.getMonth() === currentDate.getMonth() &&
-                    createdDate.getFullYear() === currentDate.getFullYear()
-                  );
-                })?.length || 0
+                appointments?.filter(
+                  (a) => a.status.toLowerCase() === "completed"
+                )?.length || 0
               }
-              icon={<PhoneIcon className=" text-blue-600" />}
+              icon={<PhoneIcon className="text-blue-600" />}
               bgColor="bg-blue-50"
               textColor="text-blue-700"
             />
@@ -133,7 +161,7 @@ const ManageAppointments = () => {
               <input
                 type="search"
                 className="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Search appointments by name, email or phone..."
+                placeholder="Search appointments by patient, doctor, or service..."
                 onChange={(e) => setSearchQuery(e.target.value)}
                 value={searchQuery}
               />
@@ -141,18 +169,13 @@ const ManageAppointments = () => {
             <div className="w-full md:w-56">
               <select
                 className="w-full p-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
               >
-                <option value="all">All Categories</option>
-                <option value="Heart">Heart</option>
-                <option value="Lungs">Lungs</option>
-                <option value="Bones">Bones</option>
-                <option value="Eyes">Eyes</option>
-                <option value="Brain">Brain</option>
-                <option value="E.N.T.">E.N.T</option>
-                <option value="Physiciast">Physiciast</option>
-                <option value="Psychologist">Psychologist</option>
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
               </select>
             </div>
           </div>
@@ -163,40 +186,59 @@ const ManageAppointments = () => {
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-white uppercase bg-indigo-600">
                   <tr>
-                    <th className="px-6 py-3">appointment Name</th>
-                    <th className="px-6 py-3">Email Address</th>
-                    <th className="px-6 py-3">Phone Number</th>
+                    <th className="px-6 py-3">Patient</th>
+                    <th className="px-6 py-3">Doctor</th>
+                    <th className="px-6 py-3">Service</th>
+                    <th className="px-6 py-3">Date</th>
+                    <th className="px-6 py-3">Status</th>
                     <th className="px-6 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentappointments && currentappointments.length > 0 ? (
-                    currentappointments.map((appointment) => (
+                  {currentAppointments && currentAppointments.length > 0 ? (
+                    currentAppointments.map((appointment) => (
                       <tr
                         key={appointment._id}
                         className="border-b cursor-pointer hover:bg-gray-50 transition-colors"
                         onClick={() => navigateToProfile(appointment)}
                       >
-                        <td className="px-4 py-2 font-medium">
+                        <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3">
-                              {appointment.fullName.charAt(0).toUpperCase()}
+                              {appointment.patientName.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <div className="font-medium text-gray-900">
-                                {appointment.fullName}
+                                {appointment.patientName}
                               </div>
                               <div className="text-xs text-gray-500">
-                                {appointment.category || "No category"}
+                                {appointment.patientEmail}
                               </div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-gray-600">
-                          {appointment.email}
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900">
+                            {appointment.doctorName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {appointment.department}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-gray-600">
-                          {appointment.phone}
+                          {appointment.service}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {formatDate(appointment.appointmentDate)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                              appointment.status
+                            )}`}
+                          >
+                            {appointment.status}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex space-x-2">
@@ -222,7 +264,7 @@ const ManageAppointments = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan="4"
+                        colSpan="6"
                         className="px-6 py-8 text-center text-gray-500"
                       >
                         {searchQuery
@@ -236,21 +278,24 @@ const ManageAppointments = () => {
             </div>
 
             {/* Pagination Section */}
-            {filteredappointments && filteredappointments.length > 0 && (
+            {filteredAppointments && filteredAppointments.length > 0 && (
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-gray-700">
                     Showing{" "}
                     <span className="font-medium">
-                      {indexOfFirstappointment + 1}
+                      {indexOfFirstAppointment + 1}
                     </span>{" "}
                     to{" "}
                     <span className="font-medium">
-                      {Math.min(indexOfLastappointment, filteredappointments.length)}
+                      {Math.min(
+                        indexOfLastAppointment,
+                        filteredAppointments.length
+                      )}
                     </span>{" "}
                     of{" "}
                     <span className="font-medium">
-                      {filteredappointments.length}
+                      {filteredAppointments.length}
                     </span>{" "}
                     appointments
                   </p>
@@ -273,7 +318,6 @@ const ManageAppointments = () => {
                     {/* Page numbers */}
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                       .filter((page) => {
-                        // Show current page, first, last, and pages close to current
                         return (
                           page === 1 ||
                           page === totalPages ||
@@ -301,14 +345,16 @@ const ManageAppointments = () => {
                     <button
                       onClick={() =>
                         setCurrentPage((prev) =>
-                          indexOfLastappointment < filteredappointments.length
+                          indexOfLastAppointment < filteredAppointments.length
                             ? prev + 1
                             : prev
                         )
                       }
-                      disabled={indexOfLastappointment >= filteredappointments.length}
+                      disabled={
+                        indexOfLastAppointment >= filteredAppointments.length
+                      }
                       className={`px-3 py-1 text-sm rounded ${
-                        indexOfLastappointment >= filteredappointments.length
+                        indexOfLastAppointment >= filteredAppointments.length
                           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                           : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                       }`}

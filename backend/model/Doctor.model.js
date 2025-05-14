@@ -52,6 +52,14 @@ const doctorSchema = mongoose.Schema(
         ref: "Appointment",
       },
     ],
+    consultationFee: {
+      type: Number,
+      default: 0,
+    },
+    rating: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

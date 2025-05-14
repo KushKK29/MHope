@@ -325,7 +325,7 @@ const ManageUsers = () => {
       // Update user in backend
       await axios.put(
         `http://localhost:4000/api/user/updateUser/${selectedUser._id}`,
-        updatedUserData,
+        updatedUserData
       );
 
       // Update local state
