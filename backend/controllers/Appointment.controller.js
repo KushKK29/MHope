@@ -57,7 +57,7 @@ export const getAllAppointments = async (req, res) => {
       status: appointment.status || "pending",
       service: appointment.service,
     }));
-    console.log(formattedAppointments);
+    
     res.status(200).json(formattedAppointments);
   } catch (error) {
     console.error("Error in getAllAppointments:", error);

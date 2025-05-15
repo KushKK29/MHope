@@ -7,7 +7,7 @@ import doctorRouter from "./routes/doctor.route.js";
 import patientRouter from "./routes/patient.route.js";
 import appointmentRouter from "./routes/appointment.route.js";
 import reportsRouter from "./routes/Report.route.js";
-
+import adminRouter from "./routes/admin.route.js";
 // Load environment variables
 dotenv.config();
 
@@ -49,6 +49,7 @@ app.use("/api/doctor", doctorRouter);
 app.use("/api/patient", patientRouter);
 app.use("/api/appointment", appointmentRouter);
 app.use("/api/reports", reportsRouter);
+app.use("/api/admin", adminRouter);
 
 // MongoDB connection with retry logic
 const connectDB = async (retries = 5) => {
@@ -96,12 +97,6 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log(`Health check available at http://localhost:${PORT}/health`);
-      console.log("API endpoints:");
-      console.log(`- http://localhost:${PORT}/api/reports/overview`);
-      console.log(`- http://localhost:${PORT}/api/reports/appointments`);
-      console.log(`- http://localhost:${PORT}/api/reports/doctors`);
-      console.log(`- http://localhost:${PORT}/api/reports/revenue`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);
