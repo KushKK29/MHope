@@ -18,6 +18,8 @@ import {
   BarElement,
   Title,
 } from "chart.js";
+import { useAdmin } from "../../context/adminContext";
+import { useEffect, useState } from "react";
 
 ChartJS.register(
   LineElement,
@@ -61,11 +63,14 @@ const departmentWiseData = [
 
 const BarChartComponent = ({ data }) => {
   const chartData = {
-    labels: data.map((d) => d.day),
+    labels: data.map((d) => d.date),
     datasets: [
       {
         label: "Registrations",
-        data: data.map((d) => d.users),
+        data: data.map(
+          (d) =>
+            d.adminCount + d.doctorCount + d.patientCount + d.receptionistCount
+        ),
         backgroundColor: "rgba(59, 130, 246, 0.7)",
         borderRadius: 8,
         barThickness: 24,
@@ -80,7 +85,16 @@ const BarChartComponent = ({ data }) => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (ctx) => ` ${ctx.parsed.y} users`,
+          label: function (ctx) {
+            const i = ctx.dataIndex;
+            const d = data[i];
+            return [
+              `Admins: ${d.adminCount}`,
+              `Doctors: ${d.doctorCount}`,
+              `Patients: ${d.patientCount}`,
+              `Receptionists: ${d.receptionistCount}`,
+            ];
+          },
         },
       },
     },
@@ -104,6 +118,12 @@ const BarChartComponent = ({ data }) => {
         },
       },
     },
+    animation: {
+      duration: 1000,
+      easing: "easeOutBounce",
+      // easing: "easeInOutCubic",
+    },
+    
   };
 
   return <Bar data={chartData} options={options} className="max-h-64" />;
@@ -123,6 +143,8 @@ const LineChartComponent = ({ data }) => {
         pointBackgroundColor: "#1E40AF",
         pointBorderColor: "#fff",
         pointRadius: 4,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: "#f59e0b",
       },
     ],
   };
@@ -170,6 +192,10 @@ const LineChartComponent = ({ data }) => {
         },
       },
     },
+    animation: {
+      duration: 1500,
+      easing: "easeOutBounce",
+    },
   };
 
   return <Line data={chartData} options={options} className="max-h-64" />;
@@ -191,6 +217,7 @@ const PieChartComponent = ({ data }) => {
         ],
         borderWidth: 1,
         borderColor: "#ffffff",
+        hoverOffset: 15,
       },
     ],
   };
@@ -210,12 +237,55 @@ const PieChartComponent = ({ data }) => {
         },
       },
     },
+    animation: {
+      animateRotate: true,
+      duration: 800,
+      easing: "easeInOutCubic",
+    },
   };
 
   return <Pie data={chartData} options={options} className="max-h-64" />;
 };
 
 const Dashboard = () => {
+  const { getOverview, last7daysAppointment, departmentWise, newRegistration } =
+    useAdmin();
+  const [data, setData] = useState({});
+  const [appointments1Data, setAppointments1Data] = useState([]);
+  const [departmentwise, setdepartmentwise] = useState([]);
+  const [registration1Data, setRegistration1Data] = useState({});
+  useEffect(() => {
+    const fetchData = async () => {
+      setData(await getOverview());
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchAppointmentsData = async () => {
+      const data = await last7daysAppointment();
+      setAppointments1Data(data);
+    };
+
+    fetchAppointmentsData();
+  }, []);
+
+  useEffect(() => {
+    const fetchdepartmentwiseData = async () => {
+      setdepartmentwise(await departmentWise());
+    };
+    fetchdepartmentwiseData();
+  }, []);
+
+  useEffect(() => {
+    const fetchnewRegistrationData = async () => {
+      const data = await newRegistration();
+      setRegistration1Data(data);
+    };
+    fetchnewRegistrationData();
+  }, []);
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
       {/* Mobile Header */}
@@ -229,32 +299,32 @@ const Dashboard = () => {
           </h1>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
             <StatCard
               title="Total Patients"
-              value="1,234"
+              value={data?.totalPatients || "0"}
               icon={<MdPerson2 size={18} />}
             />
             <StatCard
               title="Total Doctors"
-              value="567"
+              value={data?.totalDoctors || "0"}
               icon={<FaUserDoctor size={18} />}
             />
             <StatCard
               title="Total Appointments"
-              value="2,345"
+              value={data?.totalAppointments || "0"}
               icon={<CiViewTimeline size={18} />}
             />
             <StatCard
               title="Monthly Revenue"
-              value="$12,345"
+              value={`₹ ${data?.totalRevenue || "0"}`}
               icon={<MdOutlineAttachMoney size={18} />}
             />
-            <StatCard
+            {/* <StatCard
               title="New Registrations"
               value="89"
               icon={<MdAppRegistration size={18} />}
-            />
+            /> */}
           </div>
 
           {/* Charts */}
@@ -264,7 +334,13 @@ const Dashboard = () => {
                 📅 Appointments (Last 7 Days)
               </h2>
               <div className="h-64">
-                <LineChartComponent data={appointmentsData} />
+                <LineChartComponent
+                  data={
+                    appointments1Data && appointments1Data.length > 0
+                      ? appointments1Data
+                      : appointmentsData
+                  }
+                />
               </div>
             </div>
             <div className="bg-white shadow-md rounded-xl p-4 md:p-6">
@@ -272,17 +348,25 @@ const Dashboard = () => {
                 📊 Department-wise Appointments
               </h2>
               <div className="h-64">
-                <PieChartComponent data={departmentWiseData} />
+                <PieChartComponent
+                  data={
+                    departmentwise && departmentwise.length > 0
+                      ? departmentwise
+                      : departmentWiseData
+                  }
+                />
               </div>
             </div>
           </div>
 
           <div className="bg-white shadow-md rounded-xl p-4 md:p-6 mb-8">
             <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-800">
-              🧾 New Registrations This Week
+              🧾 New Registrations This Month
             </h2>
             <div className="h-64">
-              <BarChartComponent data={registrationData} />
+              <BarChartComponent
+                data={registration1Data.registrationsPerDay || []}
+              />
             </div>
           </div>
 

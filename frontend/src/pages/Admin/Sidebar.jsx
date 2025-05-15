@@ -114,7 +114,7 @@ const Sidebar = () => {
           {/* Footer Section */}
           <div className="p-4 border-t border-slate-700">
             <div className="text-sm text-slate-400 text-center">
-              © 2024 Hospital Management
+              © 2025 Hospital Management By Kush Goel
             </div>
           </div>
         </div>

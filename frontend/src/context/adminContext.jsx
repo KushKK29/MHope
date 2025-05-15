@@ -277,6 +277,64 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
+  const getOverview = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/admin/overview");
+      if (res.data) {
+        console.log("successfull");
+        return res.data;
+      }
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  };
+
+  const last7daysAppointment = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:4000/api/admin/last7appointments"
+      );
+      if (res.data) {
+        console.log(res.data);
+        return res.data;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
+  const departmentWise = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:4000/api/admin/departmentwise"
+      );
+      if (res.data) {
+        console.log("success");
+        return res.data;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
+  const newRegistration = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:4000/api/admin/newregistrations"
+      );
+      if (res.data) {
+        console.log("In context",res.data);
+        return res.data;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
   return (
     <contextAdmin.Provider
       value={{
@@ -300,6 +358,10 @@ export const AdminProvider = ({ children }) => {
         revenueStats,
         badge,
         setBadge,
+        getOverview,
+        last7daysAppointment,
+        departmentWise,
+        newRegistration,
       }}
     >
       {children}
