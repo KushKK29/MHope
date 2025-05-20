@@ -55,10 +55,10 @@ function App() {
             path="/doctor/prescription"
             element={<AddPrescription />}
           ></Route>
-          <Route
+          {/* <Route
             path="/doctor/doctorProfile"
             element={<DoctorProfile />}
-          ></Route>
+          ></Route> */}
           
         </Routes>
       </div>
