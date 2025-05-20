@@ -5,18 +5,18 @@ import {
   getDoctorStats,
   getRevenueStats,
 } from "../controllers/Report.controller.js";
-const router = express.Router();
+const reportsRouter = express.Router();
 
 // Get overview statistics
-router.get("/overview", getOverviewStats);
+reportsRouter.get("/overview", getOverviewStats);
 
 // Get appointment statistics
-router.get("/appointments", getAppointmentStats);
+reportsRouter.get("/appointments", getAppointmentStats);
 
 // Get doctor statistics
-router.get("/doctors", getDoctorStats);
+reportsRouter.get("/doctors", getDoctorStats);
 
 // Get revenue statistics
-router.get("/revenue", getRevenueStats);
+reportsRouter.get("/revenue", getRevenueStats);
 
-export default router;
+export default reportsRouter;

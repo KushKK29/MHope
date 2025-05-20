@@ -60,6 +60,10 @@ const doctorSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    patients: [
+      {type: mongoose.Schema.Types.ObjectId,
+      ref:"Patient",}
+    ],
   },
   { timestamps: true }
 );

@@ -8,6 +8,13 @@ import patientRouter from "./routes/patient.route.js";
 import appointmentRouter from "./routes/appointment.route.js";
 import reportsRouter from "./routes/Report.route.js";
 import adminRouter from "./routes/admin.route.js";
+import prescriptionRouter from "./routes/prescription.routes.js";
+import fs from "fs";
+import path from "path";
+// import { fileURLToPath } from "url";
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
 // Load environment variables
 dotenv.config();
 
@@ -42,7 +49,6 @@ app.get("/health", (req, res) => {
     res.status(503).send();
   }
 });
-
 // API routes
 app.use("/api/user", userRouter);
 app.use("/api/doctor", doctorRouter);
@@ -50,6 +56,13 @@ app.use("/api/patient", patientRouter);
 app.use("/api/appointment", appointmentRouter);
 app.use("/api/reports", reportsRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/prescription", prescriptionRouter);
+
+
+// const tempDir = path.join(__dirname, "temp");
+// if (!fs.existsSync(tempDir)) {
+//   fs.mkdirSync(tempDir);
+// }
 
 // MongoDB connection with retry logic
 const connectDB = async (retries = 5) => {

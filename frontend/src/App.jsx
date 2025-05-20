@@ -14,6 +14,9 @@ import Reports from "./pages/Admin/Reports";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import MoreInfo from "./pages/MoreInfo";
+import MyPatients from "./pages/Doctor/MyPatients";
+import AddPrescription from "./pages/Doctor/AddPrescription";
+
 function App() {
   return (
     <>
@@ -42,10 +45,21 @@ function App() {
             element={<ManageAppointments />}
           ></Route>
           <Route path="/patient/dashboard" element={<PDashboard />}></Route>
-          <Route path="/doctor/dashboard" element={<DDashboard />}></Route>
           <Route path="/unauthorised" element={<Unauthorized />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/moreinfo" element={<MoreInfo />}></Route>
+          {/* Doctor Routes */}
+          <Route path="/doctor/dashboard" element={<DDashboard />}></Route>
+          <Route path="/doctor/mypatients" element={<MyPatients />}></Route>
+          <Route
+            path="/doctor/prescription"
+            element={<AddPrescription />}
+          ></Route>
+          <Route
+            path="/doctor/doctorProfile"
+            element={<DoctorProfile />}
+          ></Route>
+          
         </Routes>
       </div>
     </>

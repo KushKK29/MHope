@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Appointment from "../model/appointment.model.js";
 import Patient from "../model/Patient.model.js";
 import Doctor from "../model/Doctor.model.js";
@@ -6,7 +7,9 @@ export const createAppointment = async (req, res) => {
   const { patientId, doctorId, date, time, service } = req.body;
 
   if (!patientId || !doctorId || !date || !time || !service) {
-    return res.status(400).json({ message: "All fields are required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required" });
   }
 
   try {
@@ -21,14 +24,32 @@ export const createAppointment = async (req, res) => {
     });
 
     await appointment.save();
-    res
-      .status(201)
-      .json({ message: "Appointment created successfully", appointment });
+
+    await Promise.all([
+      Doctor.findByIdAndUpdate(
+        doctorId,
+        { $addToSet: { appointments: appointment._id, patients: patientId } },
+        { new: true }
+      ),
+      Patient.findByIdAndUpdate(
+        patientId,
+        { $addToSet: { appointments: appointment._id, doctors: doctorId } },
+        { new: true }
+      ),
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      message: "Appointment created successfully",
+      appointment,
+    });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    console.error("Error in createAppointment:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
@@ -39,11 +60,6 @@ export const getAllAppointments = async (req, res) => {
       .populate("doctorId", "fullName email department")
       .lean();
 
-    if (!appointments.length) {
-      return res.status(200).json([]); // Return empty array instead of 404
-    }
-
-    // Format the appointments data to match frontend expectations
     const formattedAppointments = appointments.map((appointment) => ({
       _id: appointment._id,
       patientName: appointment.patientId?.fullName || "Unknown Patient",
@@ -57,7 +73,7 @@ export const getAllAppointments = async (req, res) => {
       status: appointment.status || "pending",
       service: appointment.service,
     }));
-    
+
     res.status(200).json(formattedAppointments);
   } catch (error) {
     console.error("Error in getAllAppointments:", error);
@@ -68,26 +84,28 @@ export const getAllAppointments = async (req, res) => {
 };
 
 export const getAppointmentsByid = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid Doctor ID" });
+  }
+
   try {
-    const { id } = req.params;
+    const appointments = await Appointment.find({ doctorId: id })
+      .populate("patientId", "fullName email phone gender")
+      .populate("doctorId", "fullName email department")
+      .lean();
 
-    if (!id) {
-      return res.status(400).json({ message: "id not available" });
+    if (!appointments.length) {
+      return res.status(200).json([]);
     }
 
-    const appointment = await Appointment.findById(id)
-      .populate("patientId", "fullName email phone")
-      .populate("doctorId", "fullName email department");
-
-    if (!appointment) {
-      return res.status(404).json({ message: "Appointment not found" });
-    }
-
-    const formattedAppointment = {
+    const formattedAppointments = appointments.map((appointment) => ({
       _id: appointment._id,
       patientName: appointment.patientId?.fullName || "Unknown Patient",
       patientEmail: appointment.patientId?.email || "No email",
       patientPhone: appointment.patientId?.phone || "No phone",
+      patientGender: appointment.patientId?.gender || "Unknown",
       doctorName: appointment.doctorId?.fullName || "Unknown Doctor",
       department: appointment.doctorId?.department || "Unknown Department",
       appointmentDate:
@@ -95,12 +113,14 @@ export const getAppointmentsByid = async (req, res) => {
         new Date(`${appointment.date}T${appointment.time}`),
       status: appointment.status || "pending",
       service: appointment.service,
-    };
+    }));
 
-    return res.status(200).json(formattedAppointment);
+    return res.status(200).json(formattedAppointments);
   } catch (error) {
     console.error("Error in getAppointmentsByid:", error);
-    return res.status(500).json({ message: "Internal Server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -108,8 +128,8 @@ export const updateAppointment = async (req, res) => {
   const { id } = req.params;
   const { date, time, status, service, notes } = req.body;
 
-  if (!id) {
-    return res.status(400).json({ message: "Appointment ID is required" });
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid Appointment ID" });
   }
 
   try {
@@ -120,11 +140,10 @@ export const updateAppointment = async (req, res) => {
     if (service) updateData.service = service;
     if (notes !== undefined) updateData.notes = notes;
 
-    // Update appointmentDate if date or time changes
     if (date || time) {
-      const appointment = await Appointment.findById(id);
-      const newDate = date || appointment.date;
-      const newTime = time || appointment.time;
+      const existing = await Appointment.findById(id).lean();
+      const newDate = date || existing.date;
+      const newTime = time || existing.time;
       updateData.appointmentDate = new Date(`${newDate}T${newTime}`);
     }
 
@@ -165,8 +184,8 @@ export const updateAppointment = async (req, res) => {
 export const deleteAppointment = async (req, res) => {
   const { id } = req.params;
 
-  if (!id) {
-    return res.status(400).json({ message: "Appointment ID is required" });
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid Appointment ID" });
   }
 
   try {

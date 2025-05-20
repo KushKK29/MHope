@@ -14,7 +14,7 @@ const patientSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    doctor_app: [
+    doctors: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Doctor",
@@ -31,11 +31,21 @@ const patientSchema = mongoose.Schema(
       country: { type: String, default: "" },
       zip: { type: String, default: "" },
     },
-
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Others"],
+      default: "Male",
+    },
     phone: {
       type: String,
       default: "",
     },
+    appointments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Appointment",
+      },
+    ],
   },
   { timestamps: true }
 );
