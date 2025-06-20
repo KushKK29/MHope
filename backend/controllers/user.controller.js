@@ -1,14 +1,11 @@
 import User from "../model/user.model.js";
 import Doctor from "../model/Doctor.model.js";
 import Patient from "../model/Patient.model.js";
-import Receptionist from "../model/Receptionist.model.js";
+
 import bcrypt from "bcryptjs";
 import { createDoctor, updateDoctor } from "./doctor.controller.js";
 import { createPatient, updatePatient } from "./Patient.controller.js";
-import {
-  createReceptionist,
-  updateReceptionist,
-} from "./Receptionist.controller.js";
+
 
 export const signup = async (req, res) => {
   try {
@@ -57,7 +54,7 @@ export const signup = async (req, res) => {
     const userExists = await Promise.all([
       User.findOne({ email }),
       Doctor.findOne({ email }),
-      Receptionist.findOne({ email }),
+      
       Patient.findOne({ email }),
     ]);
 
@@ -74,8 +71,6 @@ export const signup = async (req, res) => {
       return await createDoctor(req, res);
     } else if (role === "Patient") {
       return await createPatient(req, res);
-    } else if (role === "Receptionist") {
-      return await createReceptionist(req, res);
     } else if (role === "Admin") {
       console.log("Creating admin user");
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -102,7 +97,7 @@ export const signup = async (req, res) => {
       console.log("Invalid role provided:", role);
       return res.status(400).json({
         message: "Invalid role",
-        allowedRoles: ["Doctor", "Patient", "Receptionist", "Admin"],
+        allowedRoles: ["Doctor", "Patient", , "Admin"],
       });
     }
   } catch (error) {
@@ -128,7 +123,6 @@ export const login = async (req, res) => {
     const user =
       (await User.findOne({ email })) ||
       (await Doctor.findOne({ email })) ||
-      (await Receptionist.findOne({ email })) ||
       (await Patient.findOne({ email }));
 
     if (!user) {
@@ -162,13 +156,11 @@ export const getAllUsers = async (req, res) => {
     const admins = await User.find().select("-password");
     const doctors = await Doctor.find().select("-password");
     const patients = await Patient.find().select("-password");
-    const receptionists = await Receptionist.find().select("-password");
 
     const allUsers = [
       ...admins.map((u) => ({ ...u._doc, role: "Admin" })),
       ...doctors.map((u) => ({ ...u._doc, role: "Doctor" })),
       ...patients.map((u) => ({ ...u._doc, role: "Patient" })),
-      ...receptionists.map((u) => ({ ...u._doc, role: "Receptionist" })),
     ];
 
     res.status(200).json({ message: "Request successful", users: allUsers });
@@ -239,15 +231,6 @@ export const updateUser = async (req, res) => {
         phone,
         address,
       };
-    } else if (role === "Receptionist") {
-      updateData = {
-        fullName: fullName,
-        email: email,
-        phone,
-        address,
-        qualification,
-        experience,
-      };
     } else {
       return res.status(404).json({ message: "Invalid role" });
     }
@@ -262,10 +245,6 @@ export const updateUser = async (req, res) => {
       });
     } else if (role === "Patient") {
       updatedUser = await Patient.findByIdAndUpdate(id, updateData, {
-        new: true,
-      });
-    } else if (role === "Receptionist") {
-      updatedUser = await Receptionist.findByIdAndUpdate(id, updateData, {
         new: true,
       });
     } else {
@@ -296,18 +275,16 @@ export const searchUsers = async (req, res) => {
       ],
     };
 
-    const [admins, doctors, patients, receptionists] = await Promise.all([
+    const [admins, doctors, patients, ] = await Promise.all([
       User.find(searchCriteria),
       Doctor.find(searchCriteria),
       Patient.find(searchCriteria),
-      Receptionist.find(searchCriteria),
     ]);
 
     const results = [
       ...admins.map((u) => ({ ...u._doc, role: "Admin" })),
       ...doctors.map((u) => ({ ...u._doc, role: "Doctor" })),
       ...patients.map((u) => ({ ...u._doc, role: "Patient" })),
-      ...receptionists.map((u) => ({ ...u._doc, role: "Receptionist" })),
     ];
 
     res.status(200).json({ results });

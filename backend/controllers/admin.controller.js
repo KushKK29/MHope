@@ -2,7 +2,7 @@ import Appointment from "../model/appointment.model.js";
 import Doctor from "../model/Doctor.model.js";
 import Patient from "../model/Patient.model.js";
 import User from "../model/user.model.js";
-import Receptionist from "../model/Receptionist.model.js";
+
 export const overViewStats = async (req, res) => {
   try {
     const totalAppointments = await Appointment.countDocuments();
@@ -118,7 +118,7 @@ export const newRegistrations = async (req, res) => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 30);
 
-    const [admin, doctor, patient, receptionist] = await Promise.all([
+    const [admin, doctor, patient] = await Promise.all([
       User.aggregate([
         { $match: { createdAt: { $gte: sevenDaysAgo } } },
         {
@@ -146,15 +146,7 @@ export const newRegistrations = async (req, res) => {
           },
         },
       ]),
-      Receptionist.aggregate([
-        { $match: { createdAt: { $gte: sevenDaysAgo } } },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-            receptionistCount: { $sum: 1 },
-          },
-        },
-      ]),
+      
     ]);
 
     const mergedMap = new Map();
@@ -170,14 +162,14 @@ export const newRegistrations = async (req, res) => {
     mergeData(admin, "adminCount");
     mergeData(doctor, "doctorCount");
     mergeData(patient, "patientCount");
-    mergeData(receptionist, "receptionistCount");
+    
 
     const finalData = Array.from(mergedMap.values()).map((entry) => ({
       date: entry.date,
       adminCount: entry.adminCount || 0,
       doctorCount: entry.doctorCount || 0,
       patientCount: entry.patientCount || 0,
-      receptionistCount: entry.receptionistCount || 0,
+      
     }));
 
     // Sort by date
