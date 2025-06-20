@@ -2,13 +2,44 @@ import React, { useState, useEffect } from "react";
 import { Country, State, City } from "country-state-city";
 import { toast } from "react-toastify";
 import { useAdmin } from "../context/adminContext";
+import { useDoctor } from "../context/doctorContext";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const Profile = () => {
-  const { user, setUser, handleSaveUser } = useAdmin();
-
+  const location = useLocation();
+  const { user, setUser, handleSaveUser, admin } = useAdmin();
+  const { doctor } = useDoctor();
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        if (location.state?.isPatientProfile) {
+          // Fetch patient data
+          const response = await axios.get(
+            `http://localhost:4000/api/user/updateUser/${location.state.patientId}`
+          );
+          if (response.data) {
+            setUser(response.data);
+          }
+        } else {
+          // Use admin data
+          setUser(admin);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Failed to load profile data");
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [location.state, admin]);
 
   const [formData, setFormData] = useState({
     fullName: user?.fullName || "",
@@ -199,9 +230,11 @@ const Profile = () => {
     };
 
     try {
-      handleSaveUser(updatedUserData);
-      setUser(updatedUserData);
-      toast.success("Profile updated successfully");
+      const res = handleSaveUser(updatedUserData);
+      if (res) {
+        setUser(res);
+        toast.success("Profile updated successfully");
+      }
     } catch (error) {
       toast.error("Failed to update profile");
       console.error("Profile update error:", error);
@@ -210,6 +243,14 @@ const Profile = () => {
 
   const isDoctor = user?.role === "Doctor";
   const isStaff = user?.role === "Doctor" || user?.role === "Receptionist";
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-50 to-sky-100 p-6">

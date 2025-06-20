@@ -20,6 +20,7 @@ export const DoctorProvider = ({ children }) => {
         `http://localhost:4000/api/appointment/getAppointments/${id}` // Adjust the endpoint as needed
       );
       if (response.data) {
+        console.log(response.data);
         setAppointments(response.data);
       }
     } catch (error) {

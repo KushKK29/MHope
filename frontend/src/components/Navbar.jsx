@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, User, LogOut, Settings } from "lucide-react";
+import { useDetails } from "../context/detailsContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const menuRef = useRef(null);
+  const { badge, setBadge } = useDetails();
 
   useEffect(() => {
     // Get user data from localStorage
@@ -30,20 +32,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-800 shadow-md">
+    <nav className="sticky top-0 z-50 bg-slate-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <button
               onClick={() => navigate("/")}
-              className="text-xl font-bold text-blue-600 hover:text-blue-800 transition-colors"
+              className="text-2xl font-extrabold text-blue-400 hover:text-white transition-colors tracking-wide drop-shadow-lg"
             >
               MHope
             </button>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar (Commented Out) */}
+          {/*
           <div className="flex-1 max-w-md mx-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -56,15 +59,20 @@ const Navbar = () => {
               />
             </div>
           </div>
+          */}
 
           {/* User Menu */}
           <div className="flex items-center">
             <div className="relative inline-block text-left" ref={menuRef}>
-              <div>
+              <div className="indicator">
+                {/* Notification badge if needed */}
+                {!badge && (
+                  <span className="indicator-item status status-success"></span>
+                )}
                 <button
                   type="button"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="inline-flex items-center justify-center rounded-full h-10 w-10 overflow-hidden border-2 border-blue-100 hover:border-blue-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="relative inline-flex items-center justify-center rounded-full h-12 w-12 overflow-hidden border-2 border-blue-300 hover:border-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-md bg-white"
                   id="user-menu"
                   aria-expanded={isMenuOpen}
                   aria-haspopup="true"
@@ -76,74 +84,78 @@ const Navbar = () => {
                       alt={userData?.fullName || "User profile"}
                     />
                   ) : (
-                    <div className="h-full w-full flex items-center justify-center bg-blue-100 text-blue-600 font-semibold text-lg">
+                    <div className="h-full w-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-xl">
                       {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                   )}
                 </button>
               </div>
 
+              {/* Dropdown Menu */}
               {isMenuOpen && (
                 <div
-                  className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none"
+                  className="origin-top-right absolute right-0 mt-2 w-56 rounded-xl shadow-2xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none animate-fade-in"
                   role="menu"
                   aria-orientation="vertical"
                   aria-labelledby="user-menu"
                 >
-                  <div className="py-1" role="none">
-                    <div className="flex items-center px-4 py-2 text-sm text-gray-700">
-                      {userData?.profileImage ? (
-                        <img
-                          className="h-8 w-8 rounded-full mr-2"
-                          src={userData.profileImage}
-                          alt={userData?.fullName || "User profile"}
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full mr-2 flex items-center justify-center bg-blue-100 text-blue-600 font-semibold">
-                          {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-medium">
-                          {userData?.fullName || "User"}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {userData?.email || "No email"}
-                        </p>
+                  {/* User Info */}
+                  <div
+                    className="py-3 px-4 flex items-center gap-3 border-b border-gray-100"
+                    role="none"
+                  >
+                    {userData?.profileImage ? (
+                      <img
+                        className="h-10 w-10 rounded-full border-2 border-blue-200"
+                        src={userData.profileImage}
+                        alt={userData?.fullName || "User profile"}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-lg border-2 border-blue-200">
+                        {userData?.fullName?.charAt(0)?.toUpperCase() || "U"}
                       </div>
+                    )}
+                    <div>
+                      <p className="font-semibold text-gray-900 text-base">
+                        {userData?.fullName || "User"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {userData?.email || "No email"}
+                      </p>
                     </div>
                   </div>
+                  {/* Menu Actions */}
                   <div className="py-1" role="none">
                     <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 transition-colors font-medium gap-2"
                       role="menuitem"
                       onClick={() => {
                         setIsMenuOpen(false);
                         navigate("/profile");
                       }}
                     >
-                      <User className="mr-3 h-4 w-4" />
+                      <User className="h-5 w-5 text-blue-500" />
                       Profile
                     </button>
                     <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 transition-colors font-medium gap-2"
                       role="menuitem"
                       onClick={() => {
                         setIsMenuOpen(false);
                         navigate("/settings");
                       }}
                     >
-                      <Settings className="mr-3 h-4 w-4" />
+                      <Settings className="h-5 w-5 text-blue-500" />
                       Settings
                     </button>
                   </div>
                   <div className="py-1" role="none">
                     <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium gap-2"
                       role="menuitem"
                       onClick={handleLogout}
                     >
-                      <LogOut className="mr-3 h-4 w-4" />
+                      <LogOut className="h-5 w-5" />
                       Logout
                     </button>
                   </div>

@@ -266,3 +266,48 @@ export const getPrescriptionsByDoctorId = async (req, res) => {
     });
   }
 };
+
+// Download prescription as PDF
+export const downloadPrescriptionPDF = async (req, res) => {
+  try {
+    const { prescriptionId } = req.params;
+    const prescription = await Prescription.findById(prescriptionId)
+      .populate("patientId")
+      .populate("doctorId");
+
+    if (!prescription) {
+      return res.status(404).json({ message: "Prescription not found" });
+    }
+
+    // Generate PDF
+    const pdfPath = await generatePDF(
+      prescription,
+      prescription.patientId,
+      prescription.doctorId
+    );
+
+    // Set headers for download
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=prescription-${prescriptionId}.pdf`
+    );
+
+    // Stream the PDF file
+    const fileStream = fs.createReadStream(pdfPath);
+    fileStream.pipe(res);
+
+    fileStream.on("end", () => {
+      fs.unlinkSync(pdfPath); // Clean up temp file
+    });
+    fileStream.on("error", (err) => {
+      res
+        .status(500)
+        .json({ message: "Error sending PDF", error: err.message });
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error generating PDF", error: error.message });
+  }
+};

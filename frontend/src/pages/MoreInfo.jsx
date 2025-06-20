@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 import { useDetails } from "../context/detailsContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAdmin } from "../context/adminContext";
 import { Country, State, City } from "country-state-city";
 
 export default function MoreInfo() {
-  const {badeg,setBadge} = useAdmin();
+
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -49,6 +48,8 @@ export default function MoreInfo() {
     phone,
     setPhone,
     handleUpdate,
+    badge,
+    setBadge,
   } = useDetails();
   const [experience, setExperience] = useState("");
   const [qualification, setQualification] = useState("");
@@ -100,9 +101,13 @@ export default function MoreInfo() {
       qualification,
     };
 
-    await handleUpdate(id, updatedData);
-    toast.success("Profile updated successfully");
-    setBadge(true);
+    const res = await handleUpdate(id, updatedData);
+    if (res) {
+      toast.success("Profile updated successfully");
+      setBadge(true);
+    } else {
+      toast.error("Error Updating profile coe back later");
+    }
     navigateToDashboard();
   };
 
@@ -341,7 +346,6 @@ export default function MoreInfo() {
               value={address.zip}
               onChange={handleAddressChange}
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-
             />
           </div>
           <div className="md:col-span-2">

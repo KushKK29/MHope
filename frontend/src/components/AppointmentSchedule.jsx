@@ -17,7 +17,12 @@ const Appointment_Schedule = ({ data }) => {
   const navigate = useNavigate();
 
   const handleViewProfile = (patientId) => {
-    navigate(`/patient/${patientId}`);
+    navigate(`/profile/${patientId}`, {
+      state: {
+        isPatientProfile: true,
+        patientId: patientId,
+      },
+    });
   };
 
   return (

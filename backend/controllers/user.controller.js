@@ -271,11 +271,12 @@ export const updateUser = async (req, res) => {
     } else {
       return res.status(404).json({ message: "Internal error but in  try" });
     }
-    res.status(200).json({ message: "Successfully updated" });
+    res.status(200).json({ message: "Successfully updated", success: true });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({
       message: `Internal server error at update user + ${error.message}`,
+      success: false,
     });
   }
 };

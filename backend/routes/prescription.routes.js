@@ -3,6 +3,7 @@ import {
   createPrescription,
   getPrescriptionsByPatientId,
   getPrescriptionsByDoctorId,
+  downloadPrescriptionPDF,
 } from "../controllers/Prescription.controller.js";
 
 const prescriptionRouter = express.Router();
@@ -21,5 +22,8 @@ prescriptionRouter.get("/patient/:patientId", getPrescriptionsByPatientId);
 
 // Get prescriptions by doctor ID (protected route)
 prescriptionRouter.get("/doctor/:doctorId", getPrescriptionsByDoctorId);
+
+// Get prescription as PDF (protected route)
+prescriptionRouter.get("/download/:prescriptionId", downloadPrescriptionPDF);
 
 export default prescriptionRouter;

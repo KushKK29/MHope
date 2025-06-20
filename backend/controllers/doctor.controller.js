@@ -33,9 +33,9 @@ export const createDoctor = async (req, res) => {
 export const getAllDoctors = async (req, res) => {
   try {
     const { role } = req.query; // 🔧 Added query parameter for role
-    if (role !== "Admin") {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    // if (role !== "Admin") {
+    //   return res.status(403).json({ message: "Access denied" });
+    // }
 
     const doctors = await Doctor.find({ role: "Doctor" }).select("-password");
 

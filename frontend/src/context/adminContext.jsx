@@ -35,8 +35,12 @@ export const AdminProvider = ({ children }) => {
         ...updatedUserData,
       }));
 
-      toast.success("User updated successfully");
-      return response.data;
+      if (response.success) {
+        toast.success("User updated successfully at context");
+        localStorage.setItem("user", JSON.stringify(updatedUserData));
+        return response.data;
+      }
+      return updatedUserData;
     } catch (error) {
       console.error("Error updating user: at admin context", error.message);
       toast.error("Failed to update user");
@@ -46,10 +50,10 @@ export const AdminProvider = ({ children }) => {
 
   // get all doctors
   const getAllDoctors = async () => {
-    if (!admin || admin.role !== "Admin") {
-      toast.error("You are not authorized to view this page");
-      return [];
-    }
+    // if (!admin || admin.role !== "Admin") {
+    //   toast.error("You are not authorized to view this page");
+    //   return [];
+    // }
 
     try {
       const res = await axios.get(
@@ -63,6 +67,7 @@ export const AdminProvider = ({ children }) => {
       if (res.data) {
         setDoctors(res.data);
         toast.success("Doctors data fetched successfully");
+        setDoctors(res.data);
         return res.data;
       }
       return [];
@@ -152,10 +157,10 @@ export const AdminProvider = ({ children }) => {
   };
 
   const getAllAppointments = async () => {
-    if (!admin || admin.role !== "Admin") {
-      toast.error("You are not authorized to view this page");
-      return [];
-    }
+    // if (!admin || admin.role !== "Admin") {
+    //   toast.error("You are not authorized to view this page");
+    //   return [];
+    // }
 
     try {
       const res = await axios.get(
@@ -195,6 +200,64 @@ export const AdminProvider = ({ children }) => {
       console.error("Error deleting appointment:", error);
       toast.error(`Error deleting appointment: ${error.message}`);
       throw error;
+    }
+  };
+
+  // create appointment
+  const createAppointment = async (appointmentData) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/appointment/",
+        appointmentData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // Add authorization header if needed
+            // 'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.data.success) {
+        // Optionally refresh appointments list after creating
+        if (typeof getAllAppointments === "function") {
+          await getAllAppointments();
+        }
+
+        return {
+          success: true,
+          message: response.data.message,
+          appointment: response.data.appointment,
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Failed to create appointment",
+        };
+      }
+    } catch (error) {
+      console.error("Error creating appointment:", error);
+
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error status
+        return {
+          success: false,
+          message: error.response.data?.message || "Server error occurred",
+        };
+      } else if (error.request) {
+        // Request was made but no response received
+        return {
+          success: false,
+          message: "Network error. Please check your connection.",
+        };
+      } else {
+        // Something else happened
+        return {
+          success: false,
+          message: "An unexpected error occurred",
+        };
+      }
     }
   };
 
@@ -326,7 +389,7 @@ export const AdminProvider = ({ children }) => {
         "http://localhost:4000/api/admin/newregistrations"
       );
       if (res.data) {
-        console.log("In context",res.data);
+        console.log("In context", res.data);
         return res.data;
       }
     } catch (error) {
@@ -362,6 +425,8 @@ export const AdminProvider = ({ children }) => {
         last7daysAppointment,
         departmentWise,
         newRegistration,
+        admin,
+        createAppointment,
       }}
     >
       {children}

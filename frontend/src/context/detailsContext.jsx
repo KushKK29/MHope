@@ -10,6 +10,7 @@ export const useDetails = () => {
 
 export const DetailsProvider = ({ children }) => {
   const [see, setSee] = useState(false);
+  const [badge, setBadge] = useState(false);
   const [login, setLogin] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -97,13 +98,18 @@ export const DetailsProvider = ({ children }) => {
         updatedData
       );
 
-      console.log(response.data);
-      toast.success("User updated successfully");
-      return response.data;
+      if (response.success) {
+        toast.success("successully Updated");
+        localStorage.removeItem("user");
+        localStorage.setItem("user", JSON.stringify(updatedData));
+        return updatedData;
+      }
+      return null;
     } catch (error) {
       console.error(error);
       toast.error(
-        "Error updating user: " + (error.response?.data?.message || error.message)
+        "Error updating user: " +
+          (error.response?.data?.message || error.message)
       );
     }
   };
@@ -129,6 +135,8 @@ export const DetailsProvider = ({ children }) => {
         phone,
         setPhone,
         handleUpdate,
+        badge,
+        setBadge,
       }}
     >
       {children}

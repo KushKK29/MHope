@@ -91,7 +91,9 @@ export const getAppointmentsByid = async (req, res) => {
   }
 
   try {
-    const appointments = await Appointment.find({ doctorId: id })
+    const appointments = await Appointment.find({
+      $or: [{ doctorId: id }, { patientId: id }],
+    })
       .populate("patientId", "fullName email phone gender")
       .populate("doctorId", "fullName email department")
       .lean();
