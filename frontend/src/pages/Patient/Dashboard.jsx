@@ -674,14 +674,17 @@ const Dashboard = () => {
               <MdMedicalServices className="text-white text-2xl" />
             </div>
             <div className="bg-green-100 px-3 py-1 rounded-full">
-              <span className="text-green-800 text-xs font-semibold">ACTIVE</span>
+              <span className="text-green-800 text-xs font-semibold">
+                ACTIVE
+              </span>
             </div>
           </div>
           <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             AI Doctor
           </h5>
           <p className="font-normal text-gray-700 dark:text-gray-400 mb-4">
-            Upload medical images and details for instant AI-powered case analysis.
+            Upload medical images and details for instant AI-powered case
+            analysis.
           </p>
           <Button
             className="w-full bg-gradient-to-r from-indigo-500 to-blue-700 text-white"
@@ -725,9 +728,16 @@ const Dashboard = () => {
                   How to use:
                 </h3>
                 <ul className="list-disc ml-6 text-blue-800 text-sm space-y-1">
-                  <li>Upload medical images and fill in the required details.</li>
-                  <li>Click Analyze to get instant AI-powered case analysis.</li>
-                  <li>This tool is for informational purposes only. Always consult a medical professional for a diagnosis.</li>
+                  <li>
+                    Upload medical images and fill in the required details.
+                  </li>
+                  <li>
+                    Click Analyze to get instant AI-powered case analysis.
+                  </li>
+                  <li>
+                    This tool is for informational purposes only. Always consult
+                    a medical professional for a diagnosis.
+                  </li>
                 </ul>
               </div>
             </div>
