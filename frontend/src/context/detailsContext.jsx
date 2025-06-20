@@ -24,7 +24,7 @@ export const DetailsProvider = ({ children }) => {
   const handelLoginSignup = () => {
     if (!login) {
       axios
-        .post("http://localhost:4000/api/user/login", { email, password })
+        .post("https://mhope.onrender.com/api/user/login", { email, password })
         .then((res) => {
           if (res.data) {
             toast.success("Login successful");
@@ -50,7 +50,7 @@ export const DetailsProvider = ({ children }) => {
         });
     } else {
       axios
-        .post("http://localhost:4000/api/user/signup", {
+        .post("https://mhope.onrender.com/api/user/signup", {
           fullName,
           email,
           password,
@@ -94,7 +94,7 @@ export const DetailsProvider = ({ children }) => {
   const handleUpdate = async (id, updatedData) => {
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/user/updateUser/${id}`,
+        `https://mhope.onrender.com/api/user/updateUser/${id}`,
         updatedData
       );
 

@@ -282,10 +282,13 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/user/getusers", {
-          headers: { "Content-Type": "application/json" },
-          params: { role: user?.role },
-        });
+        const res = await axios.get(
+          "https://mhope.onrender.com/api/user/getusers",
+          {
+            headers: { "Content-Type": "application/json" },
+            params: { role: user?.role },
+          }
+        );
 
         if (res.data) {
           setUsers(res.data.users);
@@ -324,7 +327,7 @@ const ManageUsers = () => {
     try {
       // Update user in backend
       await axios.put(
-        `http://localhost:4000/api/user/updateUser/${selectedUser._id}`,
+        `https://mhope.onrender.com/api/user/updateUser/${selectedUser._id}`,
         updatedUserData
       );
 

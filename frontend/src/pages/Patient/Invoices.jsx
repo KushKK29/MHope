@@ -12,7 +12,7 @@ const Invoices = () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         const response = await axios.get(
-          `http://localhost:4000/api/prescription/patient/${user._id}`
+          `https://mhope.onrender.com/api/prescription/patient/${user._id}`
         );
         setPrescriptions(response.data.prescriptions || []);
       } catch (error) {
@@ -28,7 +28,7 @@ const Invoices = () => {
   const handleDownload = async (prescriptionId) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/prescription/download/${prescriptionId}`,
+        `https://mhope.onrender.com/api/prescription/download/${prescriptionId}`,
         { responseType: "blob" }
       );
 
@@ -100,10 +100,10 @@ const Invoices = () => {
                         {prescription.diagnosis}
                       </p>
                     </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700">
                         Medicines
-                        </h4>
+                      </h4>
                       <ul className="mt-1 text-gray-600 list-disc list-inside">
                         {prescription.medicines.map((med, idx) => (
                           <li key={idx}>
@@ -112,7 +112,7 @@ const Invoices = () => {
                           </li>
                         ))}
                       </ul>
-                      </div>
+                    </div>
                     {prescription.advice && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-700">

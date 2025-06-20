@@ -22,7 +22,7 @@ export const AdminProvider = ({ children }) => {
     try {
       // Update user in backend
       const response = await axios.put(
-        `http://localhost:4000/api/user/updateUser/${user._id}`,
+        `https://mhope.onrender.com/api/user/updateUser/${user._id}`,
         updatedUserData,
         {
           headers: { "Content-Type": "application/json" },
@@ -57,7 +57,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/doctor/getAllDoctors",
+        "https://mhope.onrender.com/api/doctor/getAllDoctors",
         {
           headers: { "Content-Type": "application/json" },
           params: { role: admin?.role },
@@ -87,7 +87,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:4000/api/doctor/deleteDoctor/${doctor._id}`
+        `https://mhope.onrender.com/api/doctor/deleteDoctor/${doctor._id}`
       );
 
       if (res.data) {
@@ -112,7 +112,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/patient/getAllPatients",
+        "https://mhope.onrender.com/api/patient/getAllPatients",
         {
           headers: { "Content-Type": "application/json" },
           params: { role: admin?.role },
@@ -140,7 +140,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:4000/api/patient/deletePatient/${patient._id}`
+        `https://mhope.onrender.com/api/patient/deletePatient/${patient._id}`
       );
 
       if (res.data) {
@@ -164,7 +164,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/appointment/getAllAppointments",
+        "https://mhope.onrender.com/api/appointment/getAllAppointments",
         {
           headers: { "Content-Type": "application/json" },
           params: { role: admin?.role },
@@ -187,7 +187,7 @@ export const AdminProvider = ({ children }) => {
   const deleteAppointment = async (id) => {
     try {
       const res = await axios.delete(
-        `http://localhost:4000/api/appointment/deleteAppointment/${id}`
+        `https://mhope.onrender.com/api/appointment/deleteAppointment/${id}`
       );
 
       if (res.data) {
@@ -207,7 +207,7 @@ export const AdminProvider = ({ children }) => {
   const createAppointment = async (appointmentData) => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/appointment/",
+        "https://mhope.onrender.com/api/appointment/",
         appointmentData,
         {
           headers: {
@@ -265,7 +265,7 @@ export const AdminProvider = ({ children }) => {
   const overviewStats = async (dateRange) => {
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/reports/overview`,
+        `https://mhope.onrender.com/api/reports/overview`,
         {
           params: { dateRange },
         }
@@ -286,7 +286,7 @@ export const AdminProvider = ({ children }) => {
   const appointmentStat = async (dateRange) => {
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/reports/appointments`,
+        `https://mhope.onrender.com/api/reports/appointments`,
         {
           params: { dateRange },
         }
@@ -306,9 +306,12 @@ export const AdminProvider = ({ children }) => {
 
   const doctorStats = async (dateRange) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/reports/doctors`, {
-        params: { dateRange },
-      });
+      const res = await axios.get(
+        `https://mhope.onrender.com/api/reports/doctors`,
+        {
+          params: { dateRange },
+        }
+      );
 
       if (res.data) {
         console.log("Doctor stats:", res.data);
@@ -324,9 +327,12 @@ export const AdminProvider = ({ children }) => {
 
   const revenueStats = async (dateRange, revenue) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/reports/revenue`, {
-        params: { dateRange },
-      });
+      const res = await axios.get(
+        `https://mhope.onrender.com/api/reports/revenue`,
+        {
+          params: { dateRange },
+        }
+      );
 
       if (res.data) {
         console.log("Revenue stats:", res.data);
@@ -342,7 +348,9 @@ export const AdminProvider = ({ children }) => {
 
   const getOverview = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/admin/overview");
+      const res = await axios.get(
+        "https://mhope.onrender.com/api/admin/overview"
+      );
       if (res.data) {
         console.log("successfull");
         return res.data;
@@ -356,7 +364,7 @@ export const AdminProvider = ({ children }) => {
   const last7daysAppointment = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/admin/last7appointments"
+        "https://mhope.onrender.com/api/admin/last7appointments"
       );
       if (res.data) {
         console.log(res.data);
@@ -371,7 +379,7 @@ export const AdminProvider = ({ children }) => {
   const departmentWise = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/admin/departmentwise"
+        "https://mhope.onrender.com/api/admin/departmentwise"
       );
       if (res.data) {
         console.log("success");
@@ -386,7 +394,7 @@ export const AdminProvider = ({ children }) => {
   const newRegistration = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/admin/newregistrations"
+        "https://mhope.onrender.com/api/admin/newregistrations"
       );
       if (res.data) {
         console.log("In context", res.data);

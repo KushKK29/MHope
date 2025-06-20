@@ -21,7 +21,7 @@ const Profile = () => {
         if (location.state?.isPatientProfile) {
           // Fetch patient data
           const response = await axios.get(
-            `http://localhost:4000/api/user/updateUser/${location.state.patientId}`
+            `https://mhope.onrender.com/api/user/updateUser/${location.state.patientId}`
           );
           if (response.data) {
             setUser(response.data);

@@ -17,7 +17,7 @@ export const DoctorProvider = ({ children }) => {
   const getAppointmentsByid = async (id) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/appointment/getAppointments/${id}` // Adjust the endpoint as needed
+        `https://mhope.onrender.com/api/appointment/getAppointments/${id}` // Adjust the endpoint as needed
       );
       if (response.data) {
         console.log(response.data);
@@ -35,7 +35,7 @@ export const DoctorProvider = ({ children }) => {
   const AddPrescription = async (data) => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/prescription/create",
+        "https://mhope.onrender.com/api/prescription/create",
         data
       );
       if (res.data.success) {
@@ -50,7 +50,7 @@ export const DoctorProvider = ({ children }) => {
   const createAppointment = async (data) => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/appointment/",
+        "https://mhope.onrender.com/api/appointment/",
         data
       );
       return res.data;
