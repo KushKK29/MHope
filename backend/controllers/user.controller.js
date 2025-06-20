@@ -9,7 +9,7 @@ import { createPatient, updatePatient } from "./Patient.controller.js";
 
 export const signup = async (req, res) => {
   try {
-    console.log("Signup request received:", req.body);
+    
     const { fullName, email, password, role } = req.body;
 
     // Validate required fields
@@ -83,7 +83,7 @@ export const signup = async (req, res) => {
       });
 
       await user.save();
-      console.log("Admin user created successfully");
+      
 
       // Don't send password back in response
       const userResponse = { ...user.toObject() };
@@ -94,14 +94,14 @@ export const signup = async (req, res) => {
         user: userResponse,
       });
     } else {
-      console.log("Invalid role provided:", role);
+      
       return res.status(400).json({
         message: "Invalid role",
         allowedRoles: ["Doctor", "Patient", , "Admin"],
       });
     }
   } catch (error) {
-    console.error("Signup error:", error);
+    
     return res.status(500).json({
       message: "Internal Server Error at signup",
       error: error.message,

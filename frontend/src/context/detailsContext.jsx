@@ -83,6 +83,7 @@ export const DetailsProvider = ({ children }) => {
           }
         })
         .catch((err) => {
+          console.log(err);
           toast.error(
             "Sign up failed: at context " +
               (err.response?.data?.message || err.message)
