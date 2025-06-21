@@ -12,6 +12,7 @@ export const DetailsProvider = ({ children }) => {
   const [see, setSee] = useState(false);
   const [badge, setBadge] = useState(false);
   const [login, setLogin] = useState(false);
+  const [isloggedIn, setIsloggedIn] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +30,7 @@ export const DetailsProvider = ({ children }) => {
           if (res.data) {
             toast.success("Login successful");
             setLogin(true);
+            setIsloggedIn(true);  // Set isloggedIn to true on successful login
             localStorage.setItem("user", JSON.stringify(res.data.user));
             if (res.data.user.role === "Admin") {
               navigate("/admin/dashboard");
@@ -62,6 +64,7 @@ export const DetailsProvider = ({ children }) => {
           if (user) {
             toast.success("Signup successful");
             setLogin(true);
+            setIsloggedIn(true);
             localStorage.setItem("user", JSON.stringify(user));
 
             if (user.role === "Admin") {
@@ -138,6 +141,8 @@ export const DetailsProvider = ({ children }) => {
         handleUpdate,
         badge,
         setBadge,
+        isloggedIn,
+        setIsloggedIn,
       }}
     >
       {children}
