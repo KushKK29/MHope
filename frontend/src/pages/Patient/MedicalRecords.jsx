@@ -45,12 +45,14 @@ const MedicalRecords = () => {
   const AppointmentCard = ({ appt }) => {
     const apptDate = new Date(appt.appointmentDate);
     const isUpcoming = apptDate >= now;
-    
+
     return (
       <div className="bg-white rounded-lg shadow-md p-4 mb-4 border-l-4 border-blue-500">
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-800 text-lg">{appt.doctorName}</h3>
+            <h3 className="font-semibold text-gray-800 text-lg">
+              {appt.doctorName}
+            </h3>
             <p className="text-gray-600 text-sm">{appt.department}</p>
           </div>
           <span
@@ -63,7 +65,7 @@ const MedicalRecords = () => {
             {appt.status}
           </span>
         </div>
-        
+
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">Service:</span>

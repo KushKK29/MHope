@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const menuRef = useRef(null);
-  const { badge, setBadge } = useDetails();
+  const { badge, setBadge, logout } = useDetails();
 
   useEffect(() => {
     // Get user data from localStorage
@@ -27,8 +27,8 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
+    setIsMenuOpen(false);
+    logout();
   };
 
   return (
@@ -137,7 +137,6 @@ const Navbar = () => {
                       <User className="h-5 w-5 text-blue-500" />
                       Profile
                     </button>
-                    
                   </div>
                   <div className="py-1" role="none">
                     <button

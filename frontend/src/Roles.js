@@ -1,7 +1,7 @@
 // roles.js
 export const ROLES = {
   ADMIN: "Admin",
-  DOCTOR: "Doctor",
+    DOCTOR: "Doctor",
     PATIENT: "Patient",
   RECEPTIONIST: "Receptionist",
 };

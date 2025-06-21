@@ -47,7 +47,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/unauthorised" element={<Unauthorized />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* Admin Routes */}
           <Route

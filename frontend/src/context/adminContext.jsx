@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -11,10 +11,44 @@ export const useAdmin = () => {
 export const AdminProvider = ({ children }) => {
   const [badge, setBadge] = useState(false);
   const [user, setUser] = useState({});
-  const admin = JSON.parse(localStorage.getItem("user") || "{}");
+  const [admin, setAdmin] = useState(() => {
+    // Initialize admin state from localStorage
+    try {
+      const userData = localStorage.getItem("user");
+      return userData ? JSON.parse(userData) : {};
+    } catch (error) {
+      console.error("Error parsing user from localStorage:", error);
+      return {};
+    }
+  });
   const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
   const [appointments, setAppointments] = useState([]);
+
+  // Update admin state when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const userData = localStorage.getItem("user");
+        if (userData) {
+          setAdmin(JSON.parse(userData));
+        } else {
+          setAdmin({});
+        }
+      } catch (error) {
+        console.error("Error updating admin state:", error);
+        setAdmin({});
+      }
+    };
+
+    // Listen for storage events (when localStorage changes in other tabs)
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check localStorage on mount and when admin state might be stale
+    handleStorageChange();
+    
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const handleSaveUser = async (updatedUserData) => {
     console.log("Updated data:", updatedUserData);

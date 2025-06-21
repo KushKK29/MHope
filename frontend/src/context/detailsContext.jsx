@@ -1,7 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 export const detailsContext = createContext(null);
 
 export const useDetails = () => {
@@ -22,6 +23,24 @@ export const DetailsProvider = ({ children }) => {
   const [address, setAddress] = useState("");
   const [details, setDetails] = useState({ "": "" }); // Initialize details with an empty object
 
+  // Initialize authentication state from localStorage
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        if (userData._id) {
+          setIsloggedIn(true);
+          setLogin(true);
+          console.log("User authenticated from localStorage:", userData);
+        }
+      } catch (error) {
+        console.error("Error parsing user from localStorage:", error);
+        localStorage.removeItem("user");
+      }
+    }
+  }, []);
+
   const handelLoginSignup = () => {
     if (!login) {
       axios
@@ -41,7 +60,7 @@ export const DetailsProvider = ({ children }) => {
             } else if (res.data.user.role === "Receptionist") {
               navigate("/receptionist/dashboard");
             } else {
-              navigate("/unauthorised");
+              navigate("/unauthorized");
             }
           }
         })
@@ -79,7 +98,7 @@ export const DetailsProvider = ({ children }) => {
               navigate("/moreinfo");
               // navigate("/receptionist/dashboard");
             } else {
-              navigate("/unauthorised");
+              navigate("/unauthorized");
             }
           } else {
             toast.error("Signup failed: No user returned at context");
@@ -118,6 +137,15 @@ export const DetailsProvider = ({ children }) => {
     }
   };
 
+  // Logout function
+  const logout = () => {
+    setIsloggedIn(false);
+    setLogin(false);
+    localStorage.removeItem("user");
+    navigate("/login");
+    toast.success("Logged out successfully");
+  };
+
   return (
     <detailsContext.Provider
       value={{
@@ -143,6 +171,7 @@ export const DetailsProvider = ({ children }) => {
         setBadge,
         isloggedIn,
         setIsloggedIn,
+        logout,
       }}
     >
       {children}
