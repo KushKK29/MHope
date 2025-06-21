@@ -1,12 +1,10 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { ROLES } from "./Roles";
 
 import Login from "./pages/Login";
 import Home from "./Home";
 import Unauthorized from "./pages/Unauthorized";
 import Navbar from "./components/Navbar";
-import ProtectedRoute from "./ProtectedRoute";
 import GeminiChatbot from "./ChatBot";
 
 // Admin
@@ -50,146 +48,36 @@ function App() {
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* Admin Routes */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <ADashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/manage_user"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <ManageUsers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/manage_patient"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <ManagePatients />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/manage_doctor"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <ManageDoctors />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/reports"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <Reports />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/dashboard" element={<ADashboard />} />
+          <Route path="/admin/manage_user" element={<ManageUsers />} />
+          <Route path="/admin/manage_patient" element={<ManagePatients />} />
+          <Route path="/admin/manage_doctor" element={<ManageDoctors />} />
+          <Route path="/admin/reports" element={<Reports />} />
           <Route
             path="/admin/manage_appointments"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <ManageAppointments />
-              </ProtectedRoute>
-            }
+            element={<ManageAppointments />}
           />
 
           {/* Receptionist */}
-          <Route
-            path="/receptionist/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.RECEPTIONIST]}>
-                <RDashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/receptionist/dashboard" element={<RDashboard />} />
 
           {/* Doctor Routes */}
-          <Route
-            path="/doctor/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.DOCTOR]}>
-                <DDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/doctor/mypatients"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.DOCTOR]}>
-                <MyPatients />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/doctor/prescription"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.DOCTOR]}>
-                <AddPrescription />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/doctor/dashboard" element={<DDashboard />} />
+          <Route path="/doctor/mypatients" element={<MyPatients />} />
+          <Route path="/doctor/prescription" element={<AddPrescription />} />
 
           {/* Patient Routes */}
-          <Route
-            path="/patient/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.PATIENT]}>
-                <PDashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/patient/dashboard" element={<PDashboard />} />
           <Route
             path="/patient/book-appointment"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.PATIENT]}>
-                <BookAppointment />
-              </ProtectedRoute>
-            }
+            element={<BookAppointment />}
           />
-          <Route
-            path="/patient/medical-records"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.PATIENT]}>
-                <MedicalRecords />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/patient/invoices"
-            element={
-              <ProtectedRoute allowedRoles={[ROLES.PATIENT]}>
-                <Invoices />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/patient/medical-records" element={<MedicalRecords />} />
+          <Route path="/patient/invoices" element={<Invoices />} />
 
           {/* Common Routes */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute
-                allowedRoles={[ROLES.ADMIN, ROLES.DOCTOR, ROLES.PATIENT, ROLES.RECEPTIONIST]}
-              >
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/moreinfo"
-            element={
-              <ProtectedRoute
-                allowedRoles={[ROLES.ADMIN, ROLES.DOCTOR, ROLES.PATIENT, ROLES.RECEPTIONIST]}
-              >
-                <MoreInfo />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/moreinfo" element={<MoreInfo />} />
         </Routes>
         <GeminiChatbot apiKey="AIzaSyBvX1pXSK0h3ZANvyzeyNsje9FHSHFXp2U" />
       </div>

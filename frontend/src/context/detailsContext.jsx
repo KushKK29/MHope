@@ -49,7 +49,7 @@ export const DetailsProvider = ({ children }) => {
           if (res.data) {
             toast.success("Login successful");
             setLogin(true);
-            setIsloggedIn(true);  // Set isloggedIn to true on successful login
+            setIsloggedIn(true); // Set isloggedIn to true on successful login
             localStorage.setItem("user", JSON.stringify(res.data.user));
             if (res.data.user.role === "Admin") {
               navigate("/admin/dashboard");
