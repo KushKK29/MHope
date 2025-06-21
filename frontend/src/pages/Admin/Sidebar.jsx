@@ -17,7 +17,7 @@ const SidebarItem = ({ icon: Icon, label, link, isMobileView, isActive }) => (
         ${isMobileView ? "justify-center" : ""}`}
     >
       <Icon size={20} />
-      {!isMobileView && <span className="text-sm font-medium">{label}</span>}
+      <span className="text-sm font-medium">{label}</span>
     </div>
   </Link>
 );

@@ -148,7 +148,7 @@ const GeminiChatbot = ({ apiKey }) => {
           <Card className="h-full border-0 bg-transparent">
             <CardHeader className="flex flex-row items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
               <CardTitle className="text-lg font-semibold text-blue-800">
-                Trade Assistant
+                Health Assistant
               </CardTitle>
               <div className="flex items-center gap-2">
                 <button
@@ -177,7 +177,7 @@ const GeminiChatbot = ({ apiKey }) => {
                     <div className="text-center text-blue-400 py-8">
                       <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p className="text-sm">
-                        Start a conversation about trading!
+                        Start a conversation about your health ad how do you feel!
                       </p>
                     </div>
                   )}
@@ -241,7 +241,7 @@ const GeminiChatbot = ({ apiKey }) => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSubmit()}
-                    placeholder="Ask anything about trading..."
+                    placeholder="Ask anything about your health..."
                     disabled={isLoading}
                     className="flex-1 rounded-full bg-blue-50 border-blue-200 text-gray-800 placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400/20"
                   />

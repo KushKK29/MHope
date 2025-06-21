@@ -147,23 +147,23 @@ const Reports = () => {
       className={`bg-white rounded-2xl shadow-lg overflow-hidden ${className}`}
     >
       <div className="p-4 border-b border-gray-100 bg-gray-50">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
             <Icon className="text-blue-500 w-6 h-6" />
             {title}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={onExportCSV}
               disabled={isLoading}
-              className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2"
+              className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
             >
               <FaFileDownload /> CSV
             </button>
             <button
               onClick={onExportPDF}
               disabled={isLoading}
-              className="px-3 py-1.5 text-sm bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-2"
+              className="px-3 py-1.5 text-sm bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
             >
               <FaFileDownload /> PDF
             </button>
@@ -177,7 +177,7 @@ const Reports = () => {
   // Tab Navigation
   const TabNavigation = () => (
     <div className="bg-white rounded-xl shadow-md mb-6">
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-gray-200 overflow-x-auto scrollbar-hide">
         {[
           { id: "overview", label: "Overview", icon: IoAnalytics },
           { id: "appointments", label: "Appointments", icon: FaClipboardList },
@@ -187,14 +187,15 @@ const Reports = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center p-4 transition-colors ${
+            className={`flex-shrink-0 flex items-center justify-center p-4 transition-colors min-w-[120px] ${
               activeTab === tab.id
                 ? "bg-blue-50 text-blue-600 border-b-2 border-blue-500"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
             <tab.icon className="mr-2" />
-            {tab.label}
+            <span className="hidden sm:inline">{tab.label}</span>
+            <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
           </button>
         ))}
       </div>

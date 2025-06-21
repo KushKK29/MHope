@@ -137,17 +137,7 @@ const Navbar = () => {
                       <User className="h-5 w-5 text-blue-500" />
                       Profile
                     </button>
-                    <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-800 hover:bg-blue-50 transition-colors font-medium gap-2"
-                      role="menuitem"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        navigate("/settings");
-                      }}
-                    >
-                      <Settings className="h-5 w-5 text-blue-500" />
-                      Settings
-                    </button>
+                    
                   </div>
                   <div className="py-1" role="none">
                     <button
