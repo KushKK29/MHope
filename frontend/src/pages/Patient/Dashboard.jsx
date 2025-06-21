@@ -412,10 +412,10 @@ const Dashboard = () => {
               frameBorder="0"
               className="w-full h-full rounded-lg"
               title="Chest Xray AI"
-              style={{ 
-                borderRadius: "12px", 
+              style={{
+                borderRadius: "12px",
                 boxShadow: "0 2px 16px #0001",
-                minHeight: "400px"
+                minHeight: "400px",
               }}
             />
           </div>
@@ -702,7 +702,7 @@ const Dashboard = () => {
           dismissible
           show={openModal}
           onClose={() => setOpenModal(false)}
-          size="5xl"
+          size="7xl"
           className="backdrop-blur-sm"
         >
           <ModalHeader className="bg-gradient-to-r from-indigo-500 to-blue-700 text-white">
@@ -718,17 +718,22 @@ const Dashboard = () => {
               </div>
             </div>
           </ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col items-center">
-              <iframe
-                src="https://walaa2022-medicalmodel.hf.space"
-                frameBorder="0"
-                width="850"
-                height="450"
-                title="AI Doctor"
-                style={{ borderRadius: "12px", boxShadow: "0 2px 16px #0001" }}
-              ></iframe>
-              <div className="mt-6 w-full max-w-2xl bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <ModalBody className="p-0">
+            <div className="flex flex-col items-center w-full">
+              <div className="w-full h-[70vh] min-h-[400px] relative">
+                <iframe
+                  src="https://walaa2022-medicalmodel.hf.space"
+                  frameBorder="0"
+                  className="w-full h-full rounded-lg"
+                  title="AI Doctor"
+                  style={{ 
+                    borderRadius: "12px", 
+                    boxShadow: "0 2px 16px #0001",
+                    minHeight: "400px"
+                  }}
+                />
+              </div>
+              <div className="mt-4 w-full max-w-2xl bg-blue-50 border border-blue-200 rounded-lg p-4 mx-4">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
                   How to use:
                 </h3>
