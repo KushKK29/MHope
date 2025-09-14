@@ -726,10 +726,10 @@ const Dashboard = () => {
                   frameBorder="0"
                   className="w-full h-full rounded-lg"
                   title="AI Doctor"
-                  style={{ 
-                    borderRadius: "12px", 
+                  style={{
+                    borderRadius: "12px",
                     boxShadow: "0 2px 16px #0001",
-                    minHeight: "400px"
+                    minHeight: "400px",
                   }}
                 />
               </div>

@@ -36,12 +36,13 @@ import MoreInfo from "./pages/MoreInfo";
 function App() {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isLoginPage = location.pathname === "/login";
 
   return (
     <>
       <div className="bg-white">
         <ToastContainer position="top-right" autoClose={3000} />
-        {!isHome && <Navbar />}
+        {!isHome && !isLoginPage &&  <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

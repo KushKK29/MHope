@@ -37,7 +37,7 @@ const Login = () => {
   }, []);
   return (
     <div className="flex justify-center items-center min-h-screen bg-blue-200 px-4 text-black">
-      <div className="bg-white rounded-2xl shadow-2xl shadow-base-100   flex flex-col md:flex-row overflow-hidden max-w-2xl w-2/3 h-auto md:min-h-1/2">
+      <div className="bg-white rounded-2xl shadow-2xl shadow-base-100   flex flex-col md:flex-row overflow-hidden max-w-3xl w-2/3 max-h-2xl md:min-h-1/2">
         <div className="hidden md:block md:w-1/2  items-center justify-center">
           <img
             src={randomImage}
