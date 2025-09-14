@@ -1,6 +1,7 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-
+import { Client } from "@gradio/client";
+import React, { useEffect } from "react";
 import Login from "./pages/Login";
 import Home from "./Home";
 import Unauthorized from "./pages/Unauthorized";
@@ -37,6 +38,44 @@ function App() {
   const location = useLocation();
   const isHome = location.pathname === "/";
   const isLoginPage = location.pathname === "/login";
+  
+
+// const MODELS = [
+//   "m-rafayali/chest_xray",
+//   "Prakharjain31/Malaria-Detection",
+//   "Mansoorhaider21/pneumonia_detection",
+//   "DeepFieldML/Sentinel-P1_HIV_Prediction_Model",
+// ];
+
+// // Function to start the scheduler
+// const startModelScheduler = () => {
+//   // Call a single model
+//   const callModel = async (space, input = null) => {
+//     try {
+//       const client = await Client.connect(space);
+//       const result = await client.predict("/predict", {
+//         text: "ping test",
+//         image: null,
+//       });
+//       console.log(`[${space}]  Success`, result.data);
+//     } catch (err) {
+//       console.error(`[${space}]  Error`, err.message);
+//     }
+//   };
+
+//   // Call all models once
+//   const callAllModels = () => {
+//     console.log(" Calling all models...");
+//     MODELS.forEach((space) => callModel(space));
+//   };
+
+//   // Run immediately + repeat every 15 min
+//   callAllModels();
+//   setInterval(callAllModels, 15 * 60 * 1000);
+// };
+// useEffect(() => {
+//     startModelScheduler(); // kicks off the 15-min scheduler
+//   }, []);
 
   return (
     <>
