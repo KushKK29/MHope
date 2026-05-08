@@ -11,11 +11,8 @@ import adminRouter from "./routes/admin.route.js";
 import prescriptionRouter from "./routes/prescription.routes.js";
 import fs from "fs";
 import path from "path";
-// import { fileURLToPath } from "url";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 
-// Load environment variables
+
 dotenv.config();
 
 const app = express();
@@ -25,10 +22,10 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS configuration
+// CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://m-hope.vercel.app"],
+    origin: ["http://localhost:5173", "https://m-hope.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -49,7 +46,8 @@ app.get("/health", (req, res) => {
     res.status(503).send();
   }
 });
-// API routes
+
+// Routes
 app.use("/api/user", userRouter);
 app.use("/api/doctor", doctorRouter);
 app.use("/api/patient", patientRouter);
@@ -58,13 +56,7 @@ app.use("/api/reports", reportsRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/prescription", prescriptionRouter);
 
-
-// const tempDir = path.join(__dirname, "temp");
-// if (!fs.existsSync(tempDir)) {
-//   fs.mkdirSync(tempDir);
-// }
-
-// MongoDB connection with retry logic
+// MongoDB connection
 const connectDB = async (retries = 5) => {
   for (let i = 0; i < retries; i++) {
     try {
@@ -75,14 +67,14 @@ const connectDB = async (retries = 5) => {
       console.error("MongoDB connection error:", error);
       if (i < retries - 1) {
         console.log(`Retrying connection... Attempt ${i + 2} of ${retries}`);
-        await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
     }
   }
   return false;
 };
 
-// Error handling middleware
+// Error middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -94,12 +86,31 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Handle 404 routes
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Start server only after successful database connection
+// 🧠 "Kill Me Not" (Keep Alive) Function
+const keepAlive = () => {
+  const url = process.env.SERVER_URL || `http://localhost:${PORT}/health`; 
+  console.log(`[KEEP-ALIVE] Monitoring started for: ${url}`);
+
+  setInterval(async () => {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        console.log(`[KEEP-ALIVE] Ping successful at ${new Date().toISOString()}`);
+      } else {
+        console.error(`[KEEP-ALIVE] Ping failed with status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error(`[KEEP-ALIVE] Ping failed: ${err.message}`);
+    }
+  }, 15 * 60 * 1000); // Every 15 minutes
+};
+
+// Start server
 const startServer = async () => {
   try {
     const isConnected = await connectDB();
@@ -109,7 +120,8 @@ const startServer = async () => {
     }
 
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
+      keepAlive(); // <— START KEEP ALIVE LOOP HERE
     });
   } catch (error) {
     console.error("Failed to start server:", error);
