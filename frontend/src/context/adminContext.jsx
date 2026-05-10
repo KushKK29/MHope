@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import API_URL from "../config";
 
 export const contextAdmin = createContext(null);
 
@@ -15,14 +16,15 @@ export const AdminProvider = ({ children }) => {
     // Initialize admin state from localStorage
     try {
       const userData = localStorage.getItem("user");
-      return userData ? JSON.parse(userData) : {};
+      const parsedUser = userData ? JSON.parse(userData) : {};
+      return { ...parsedUser, _id: parsedUser._id || parsedUser.id };
     } catch (error) {
       console.error("Error parsing user from localStorage:", error);
       return {};
     }
   });
-  const [doctors, setDoctors] = useState([]);
-  const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState({ doctors: [] });
+  const [patients, setPatients] = useState({ patients: [] });
   const [appointments, setAppointments] = useState([]);
 
   // Update admin state when localStorage changes
@@ -56,7 +58,7 @@ export const AdminProvider = ({ children }) => {
     try {
       // Update user in backend
       const response = await axios.put(
-        `https://mhope.onrender.com/api/user/updateUser/${user._id}`,
+        `${API_URL}/user/updateUser/${user._id}`,
         updatedUserData,
         {
           headers: { "Content-Type": "application/json" },
@@ -91,7 +93,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/doctor/getAllDoctors",
+        `${API_URL}/doctor/getAllDoctors`,
         {
           headers: { "Content-Type": "application/json" },
           params: { role: admin?.role },
@@ -100,7 +102,7 @@ export const AdminProvider = ({ children }) => {
 
       if (res.data) {
         setDoctors(res.data);
-        toast.success("Doctors data fetched successfully");
+        // toast.success("Doctors data fetched successfully");
         setDoctors(res.data);
         return res.data;
       }
@@ -114,14 +116,14 @@ export const AdminProvider = ({ children }) => {
 
   // delete doctor
   const deleteDoctor = async (doctor) => {
-    if (!admin || admin.role !== "Admin") {
-      toast.error("Only admin can access this page");
-      return null;
-    }
+    // if (!admin || admin.role !== "Admin") {
+    //   toast.error("Only admin can access this page");
+    //   return null;
+    // }
 
     try {
       const res = await axios.post(
-        `https://mhope.onrender.com/api/doctor/deleteDoctor/${doctor._id}`
+        `${API_URL}/doctor/deleteDoctor/${doctor._id}`
       );
 
       if (res.data) {
@@ -139,14 +141,14 @@ export const AdminProvider = ({ children }) => {
   };
 
   const getAllPatients = async () => {
-    if (!admin || admin.role !== "Admin") {
-      toast.error("You are not authorized to view this page");
-      return [];
-    }
+    // if (!admin || admin.role !== "Admin") {
+    //   toast.error("You are not authorized to view this page");
+    //   return [];
+    // }
 
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/patient/getAllPatients",
+        `${API_URL}/patient/getAllPatients`,
         {
           headers: { "Content-Type": "application/json" },
           params: { role: admin?.role },
@@ -155,7 +157,7 @@ export const AdminProvider = ({ children }) => {
 
       if (res.data) {
         setPatients(res.data);
-        toast.success("Patient data fetched successfully");
+        // toast.success("Patient data fetched successfully");
         return res.data;
       }
       return [];
@@ -167,14 +169,14 @@ export const AdminProvider = ({ children }) => {
   };
 
   const deletePatient = async (patient) => {
-    if (!admin || admin.role !== "Admin") {
-      toast.error("Only admin can access this page");
-      return null;
-    }
+    // if (!admin || admin.role !== "Admin") {
+    //   toast.error("Only admin can access this page");
+    //   return null;
+    // }
 
     try {
       const res = await axios.post(
-        `https://mhope.onrender.com/api/patient/deletePatient/${patient._id}`
+        `${API_URL}/patient/deletePatient/${patient._id}`
       );
 
       if (res.data) {
@@ -198,7 +200,7 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/appointment/getAllAppointments",
+        `${API_URL}/appointment/getAllAppointments`,
         {
           headers: { "Content-Type": "application/json" },
           params: { role: admin?.role },
@@ -207,7 +209,7 @@ export const AdminProvider = ({ children }) => {
 
       if (res.data) {
         setAppointments(res.data);
-        toast.success("Appointments fetched successfully");
+        // toast.success("Appointments fetched successfully");
         return res.data;
       }
       return [];
@@ -221,7 +223,7 @@ export const AdminProvider = ({ children }) => {
   const deleteAppointment = async (id) => {
     try {
       const res = await axios.delete(
-        `https://mhope.onrender.com/api/appointment/deleteAppointment/${id}`
+        `${API_URL}/appointment/deleteAppointment/${id}`
       );
 
       if (res.data) {
@@ -241,7 +243,7 @@ export const AdminProvider = ({ children }) => {
   const createAppointment = async (appointmentData) => {
     try {
       const response = await axios.post(
-        "https://mhope.onrender.com/api/appointment/",
+        `${API_URL}/appointment/`,
         appointmentData,
         {
           headers: {
@@ -299,7 +301,7 @@ export const AdminProvider = ({ children }) => {
   const overviewStats = async (dateRange) => {
     try {
       const res = await axios.get(
-        `https://mhope.onrender.com/api/reports/overview`,
+        `${API_URL}/reports/overview`,
         {
           params: { dateRange },
         }
@@ -320,7 +322,7 @@ export const AdminProvider = ({ children }) => {
   const appointmentStat = async (dateRange) => {
     try {
       const res = await axios.get(
-        `https://mhope.onrender.com/api/reports/appointments`,
+        `${API_URL}/reports/appointments`,
         {
           params: { dateRange },
         }
@@ -341,7 +343,7 @@ export const AdminProvider = ({ children }) => {
   const doctorStats = async (dateRange) => {
     try {
       const res = await axios.get(
-        `https://mhope.onrender.com/api/reports/doctors`,
+        `${API_URL}/reports/doctors`,
         {
           params: { dateRange },
         }
@@ -362,7 +364,7 @@ export const AdminProvider = ({ children }) => {
   const revenueStats = async (dateRange, revenue) => {
     try {
       const res = await axios.get(
-        `https://mhope.onrender.com/api/reports/revenue`,
+        `${API_URL}/reports/revenue`,
         {
           params: { dateRange },
         }
@@ -383,7 +385,7 @@ export const AdminProvider = ({ children }) => {
   const getOverview = async () => {
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/admin/overview"
+        `${API_URL}/admin/overview`
       );
       if (res.data) {
         console.log("successfull");
@@ -398,7 +400,7 @@ export const AdminProvider = ({ children }) => {
   const last7daysAppointment = async () => {
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/admin/last7appointments"
+        `${API_URL}/admin/last7appointments`
       );
       if (res.data) {
         console.log(res.data);
@@ -413,7 +415,7 @@ export const AdminProvider = ({ children }) => {
   const departmentWise = async () => {
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/admin/departmentwise"
+        `${API_URL}/admin/departmentwise`
       );
       if (res.data) {
         console.log("success");
@@ -428,7 +430,7 @@ export const AdminProvider = ({ children }) => {
   const newRegistration = async () => {
     try {
       const res = await axios.get(
-        "https://mhope.onrender.com/api/admin/newregistrations"
+        `${API_URL}/admin/newregistrations`
       );
       if (res.data) {
         console.log("In context", res.data);

@@ -34,16 +34,16 @@ export const createPatient = async (req, res) => {
 export const getAllPatients = async (req, res) => {
   try {
     const { role } = req.query; // ✅ Change from req.user to req.query
-    if (role !== "Admin") {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    // if (role !== "Admin") {
+    //   return res.status(403).json({ message: "Access denied" });
+    // }
 
     const patients = await Patient.find({ role: "Patient" }).select(
       "-password"
     );
 
     if (patients.length === 0) {
-      return res.status(404).json({ message: "No Patients found" });
+      return res.status(200).json({ patients: [] });
     }
 
     return res.status(200).json({ patients });

@@ -3,10 +3,12 @@ import Sidebar from "./Sidebar";
 import { Label, TextInput, Textarea, Button, Select } from "flowbite-react";
 import { useDoctor } from "../../context/doctorContext";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import API_URL from "../../config";
 
 const AddPrescription = () => {
-  const { getAppointmentsByid, appointments, doctor, AddPrescription } =
+  const { getAppointmentsByid, appointments, doctor, AddPrescription: addPrescriptionFn, patients, getAllPatients } =
     useDoctor();
   const [patientId, setPatientId] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
@@ -16,20 +18,21 @@ const AddPrescription = () => {
   const [advice, setAdvice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch appointments when doctor ID is available
+  // Fetch appointments and all patients when doctor ID is available
   useEffect(() => {
-    const fetchAppointments = async () => {
-      if (doctor?._id) {
-        try {
+    const fetchData = async () => {
+      try {
+        await getAllPatients();
+        if (doctor?._id) {
           await getAppointmentsByid(doctor._id);
-        } catch (error) {
-          toast.error("Failed to fetch appointments");
         }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchAppointments();
-  }, [doctor?._id]); // Include getAppointmentsByid in dependencies
+    fetchData();
+  }, [doctor?._id]);
 
   // Handle adding a new medicine to the form
   const handleAddMedicine = () => {
@@ -71,9 +74,17 @@ const AddPrescription = () => {
     };
 
     try {
-      const response = await AddPrescription(prescriptionData);
+      const response = await addPrescriptionFn(prescriptionData);
       if (response.data.success) {
         toast.success("Prescription saved and sent to patient's email!");
+        
+        // Automatically download the PDF for the doctor
+        const prescriptionId = response.data.prescription?._id;
+        if (prescriptionId) {
+          const downloadUrl = `${API_URL}/prescription/download/${prescriptionId}`;
+          window.open(downloadUrl, "_blank");
+        }
+
         setPatientId("");
         setDiagnosis("");
         setMedicines([{ name: "", dosage: "", frequency: "", duration: "" }]);
@@ -92,27 +103,35 @@ const AddPrescription = () => {
     }
   };
 
-  // Extract unique patients from appointments
-  const patients = Array.from(
-    new Map(
-      appointments.map((appointment) => [
-        appointment._id,
+  // Prepare patients list from context patients and appointments
+  const patientsList = Array.from(
+    new Map([
+      ...patients.map((p) => [
+        p._id || p.id,
         {
-          id: appointment._id,
-          name: appointment.patientName,
-          email: appointment.patientEmail,
-          phone: appointment.patientPhone,
-          gender: appointment.patientGender,
-          lastVisit: new Date(appointment.appointmentDate).toLocaleDateString(),
-          service: appointment.service,
-          status: appointment.status,
-          department: appointment.department,
+          id: p._id || p.id,
+          name: p.fullName || p.name,
+          email: p.email,
+          phone: p.phone,
+          gender: p.gender,
+          lastVisit: "N/A",
         },
-      ])
-    ).values()
-  );
+      ]),
+      ...appointments.map((a) => [
+        a.patientId,
+        {
+          id: a.patientId,
+          name: a.patientName,
+          email: a.patientEmail,
+          phone: a.patientPhone,
+          gender: a.patientGender,
+          lastVisit: new Date(a.appointmentDate).toLocaleDateString(),
+        },
+      ]),
+    ]).values()
+  ).filter((p) => p.id);
 
-  const selectedPatientDetails = patients.find((p) => p.id === patientId);
+  const selectedPatientDetails = patientsList.find((p) => p.id === patientId);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-blue-600">
@@ -139,7 +158,7 @@ const AddPrescription = () => {
                 className="focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select Patient</option>
-                {patients.map((patient) => (
+                {patientsList.map((patient) => (
                   <option key={patient.id} value={patient.id}>
                     {patient.name}
                   </option>

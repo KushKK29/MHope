@@ -40,7 +40,7 @@ export const getAllDoctors = async (req, res) => {
     const doctors = await Doctor.find({ role: "Doctor" }).select("-password");
 
     if (doctors.length === 0) {
-      return res.status(404).json({ message: "No doctors found" });
+      return res.status(200).json({ doctors: [] });
     }
 
     return res.status(200).json({ doctors });

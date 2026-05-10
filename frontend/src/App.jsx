@@ -119,7 +119,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/moreinfo" element={<MoreInfo />} />
         </Routes>
-        <GeminiChatbot apiKey="AIzaSyBvX1pXSK0h3ZANvyzeyNsje9FHSHFXp2U" />
+        <GeminiChatbot apiKey="AIzaSyDQlWt8lHjMWUPlNpsHr2aVopopgYJMLx0" />
       </div>
     </>
   );

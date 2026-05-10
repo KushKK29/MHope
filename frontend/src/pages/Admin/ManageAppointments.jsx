@@ -17,19 +17,11 @@ const ManageAppointments = () => {
   // Filter appointments based on search query and status
   const filteredAppointments = appointments?.filter((appointment) => {
     const matchesSearch =
-      appointment.patientName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      appointment.patientEmail
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      appointment.patientPhone
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      appointment.doctorName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      appointment.service.toLowerCase().includes(searchQuery.toLowerCase());
+      (appointment?.patientName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (appointment?.patientEmail?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (appointment?.patientPhone?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (appointment?.doctorName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (appointment?.service?.toLowerCase() || "").includes(searchQuery.toLowerCase());
 
     const matchesStatus =
       selectedStatus === "all" ||

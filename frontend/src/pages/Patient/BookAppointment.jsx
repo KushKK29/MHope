@@ -18,7 +18,8 @@ const BookAppointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       setDoctorsLoading(true);
-      if (!doctors || doctors.length === 0) {
+      const doctorsList = Array.isArray(doctors) ? doctors : (doctors?.doctors || []);
+      if (doctorsList.length === 0) {
         await getAllDoctors();
       }
       setDoctorsLoading(false);

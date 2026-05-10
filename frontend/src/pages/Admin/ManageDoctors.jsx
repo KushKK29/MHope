@@ -12,9 +12,9 @@ const ManageDoctors = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const filteredDoctors = doctors?.doctors?.filter(
     (doctor) =>
-      doctor.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.phone.toLowerCase().includes(searchQuery.toLowerCase())
+      (doctor?.fullName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (doctor?.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (doctor?.phone?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   // agination

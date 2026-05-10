@@ -19,6 +19,7 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAdmin } from "../../context/adminContext";
+import API_URL from "../../config";
 
 // UserTable Component
 const UserTable = ({ onEditClick, users, searchQuery }) => {
@@ -283,7 +284,7 @@ const ManageUsers = () => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get(
-          "https://mhope.onrender.com/api/user/getusers",
+          `${API_URL}/user/getusers`,
           {
             headers: { "Content-Type": "application/json" },
             params: { role: user?.role },
@@ -297,7 +298,7 @@ const ManageUsers = () => {
           const activeUsers = res.data.users.filter((u) => u.isActive).length;
           const todayUsers = res.data.users.filter((u) => {
             const today = new Date();
-            const joinedDate = new Date(u.joinedAt);
+            const joinedDate = new Date(u.createdAt || u.joinedAt);
             return joinedDate.toDateString() === today.toDateString();
           }).length;
 
@@ -315,7 +316,8 @@ const ManageUsers = () => {
       }
     };
 
-    if (user?.role === "Admin") fetchUsers();
+    fetchUsers();
+    // if (user?.role === "Admin") fetchUsers();
   }, [user?.role]);
 
   const handleEditClick = (user) => {
@@ -327,7 +329,7 @@ const ManageUsers = () => {
     try {
       // Update user in backend
       await axios.put(
-        `https://mhope.onrender.com/api/user/updateUser/${selectedUser._id}`,
+        `${API_URL}/user/updateUser/${selectedUser._id}`,
         updatedUserData
       );
 

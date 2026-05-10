@@ -1,6 +1,7 @@
 import Prescription from "../model/Prescription.model.js";
 import Patient from "../model/Patient.model.js";
 import Doctor from "../model/Doctor.model.js";
+import User from "../model/user.model.js";
 import PDFDocument from "pdfkit";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
@@ -27,7 +28,14 @@ const transporter = nodemailer.createTransport({
 const generatePDF = async (prescription, patient, doctor) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
-    const pdfPath = path.join(__dirname, `../temp/${prescription._id}.pdf`);
+    const tempDir = path.join(__dirname, "../temp");
+    
+    // Create temp directory if it doesn't exist
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const pdfPath = path.join(tempDir, `${prescription._id}.pdf`);
     const writeStream = fs.createWriteStream(pdfPath);
 
     doc.pipe(writeStream);
@@ -39,14 +47,14 @@ const generatePDF = async (prescription, patient, doctor) => {
     doc.moveDown();
 
     // Add doctor details
-    doc.fontSize(12).text(`Doctor: ${doctor.fullName}`);
-    doc.text(`Department: ${doctor.department}`);
-    doc.text(`Contact: ${doctor.phone}`);
+    doc.fontSize(12).text(`Doctor: ${doctor?.fullName || "Not Available"}`);
+    doc.text(`Department: ${doctor?.department || "N/A"}`);
+    doc.text(`Contact: ${doctor?.phone || "N/A"}`);
     doc.moveDown();
 
     // Add patient details
-    doc.text(`Patient Name: ${patient.fullName}`);
-    doc.text(`Patient ID: ${patient._id}`);
+    doc.text(`Patient Name: ${patient?.fullName || "Not Available"}`);
+    doc.text(`Patient ID: ${patient?._id || "N/A"}`);
     doc.text(`Date: ${new Date(prescription.date).toLocaleDateString()}`);
     doc.moveDown();
 
@@ -136,29 +144,37 @@ export const createPrescription = async (req, res) => {
     await prescription.save();
     console.log("Prescription saved successfully");
 
-    // Get patient and doctor details with detailed error logging
+    // Get patient and doctor details with detailed error logging and fallbacks
     console.log("Looking up patient with ID:", patientId);
-    const patient = await Patient.findById(patientId);
+    let patient = await Patient.findById(patientId);
+    if (!patient) {
+      console.log("Patient not found in Patient collection, checking User collection...");
+      patient = await User.findById(patientId);
+    }
     console.log("Patient lookup result:", patient ? "Found" : "Not found");
 
     console.log("Looking up doctor with ID:", doctorId);
-    const doctor = await Doctor.findById(doctorId);
+    let doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      console.log("Doctor not found in Doctor collection, checking User collection...");
+      doctor = await User.findById(doctorId);
+    }
     console.log("Doctor lookup result:", doctor ? "Found" : "Not found");
 
     if (!patient) {
-      console.log("Patient not found in database. Patient ID:", patientId);
+      console.log("Patient not found in any collection. Patient ID:", patientId);
       return res.status(404).json({
         success: false,
-        message: "Patient not found. Please verify the patient ID.",
+        message: "Patient record not found. Please verify the patient ID.",
         patientId: patientId,
       });
     }
 
     if (!doctor) {
-      console.log("Doctor not found in database. Doctor ID:", doctorId);
+      console.log("Doctor not found in any collection. Doctor ID:", doctorId);
       return res.status(404).json({
         success: false,
-        message: "Doctor not found. Please verify the doctor ID.",
+        message: "Doctor record not found. Please verify your account.",
         doctorId: doctorId,
       });
     }
@@ -279,11 +295,24 @@ export const downloadPrescriptionPDF = async (req, res) => {
       return res.status(404).json({ message: "Prescription not found" });
     }
 
+    // Handle case where populate failed (e.g. record is in User collection)
+    let patient = prescription.patientId;
+    if (!patient || !patient.fullName) {
+      patient = (await Patient.findById(prescription.patientId)) || 
+                (await User.findById(prescription.patientId));
+    }
+
+    let doctor = prescription.doctorId;
+    if (!doctor || !doctor.fullName) {
+      doctor = (await Doctor.findById(prescription.doctorId)) || 
+               (await User.findById(prescription.doctorId));
+    }
+
     // Generate PDF
     const pdfPath = await generatePDF(
       prescription,
-      prescription.patientId,
-      prescription.doctorId
+      patient,
+      doctor
     );
 
     // Set headers for download

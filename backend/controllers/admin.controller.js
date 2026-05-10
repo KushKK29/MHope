@@ -19,10 +19,12 @@ export const overViewStats = async (req, res) => {
     const totalRevenueAmount = totalRevenue[0]
       ? totalRevenue[0].totalRevenue
       : 0;
+    const totalUsers = await User.countDocuments();
     res.status(200).json({
       totalAppointments,
       totalPatients,
       totalDoctors,
+      totalUsers,
       totalRevenue: totalRevenueAmount,
     });
   } catch (error) {

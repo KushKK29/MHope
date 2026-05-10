@@ -104,6 +104,7 @@ export const getAppointmentsByid = async (req, res) => {
 
     const formattedAppointments = appointments.map((appointment) => ({
       _id: appointment._id,
+      patientId: appointment.patientId?._id || appointment.patientId, // Include actual patient ID
       patientName: appointment.patientId?.fullName || "Unknown Patient",
       patientEmail: appointment.patientId?.email || "No email",
       patientPhone: appointment.patientId?.phone || "No phone",

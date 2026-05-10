@@ -159,9 +159,9 @@ const MyPatients = () => {
       const uniquePatients = Array.from(
         new Map(
           appointments.map((appointment) => [
-            appointment._id,
+            appointment.patientId,
             {
-              id: appointment._id,
+              id: appointment.patientId,
               name: appointment.patientName,
               email: appointment.patientEmail,
               phone: appointment.patientPhone,
@@ -175,7 +175,7 @@ const MyPatients = () => {
             },
           ])
         ).values()
-      );
+      ).filter(p => p.id);
 
       const lowercasedQuery = searchQuery.toLowerCase();
       const filtered = uniquePatients.filter((patient) => {

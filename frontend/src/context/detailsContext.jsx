@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import API_URL from "../config";
 
 export const detailsContext = createContext(null);
 
@@ -29,7 +30,7 @@ export const DetailsProvider = ({ children }) => {
     if (user) {
       try {
         const userData = JSON.parse(user);
-        if (userData._id) {
+        if (userData._id || userData.id) {
           setIsloggedIn(true);
           setLogin(true);
           console.log("User authenticated from localStorage:", userData);
@@ -44,7 +45,7 @@ export const DetailsProvider = ({ children }) => {
   const handelLoginSignup = () => {
     if (!login) {
       axios
-        .post("https://mhope.onrender.com/api/user/login", { email, password })
+        .post(`${API_URL}/user/login`, { email, password })
         .then((res) => {
           if (res.data) {
             toast.success("Login successful");
@@ -71,7 +72,7 @@ export const DetailsProvider = ({ children }) => {
         });
     } else {
       axios
-        .post("https://mhope.onrender.com/api/user/signup", {
+        .post(`${API_URL}/user/signup`, {
           fullName,
           email,
           password,
@@ -117,7 +118,7 @@ export const DetailsProvider = ({ children }) => {
   const handleUpdate = async (id, updatedData) => {
     try {
       const response = await axios.put(
-        `https://mhope.onrender.com/api/user/updateUser/${id}`,
+        `${API_URL}/user/updateUser/${id}`,
         updatedData
       );
 

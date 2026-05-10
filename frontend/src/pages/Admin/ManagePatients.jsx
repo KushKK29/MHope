@@ -16,9 +16,9 @@ const ManagePatients = () => {
   // Filter patients based on search query and category
   const filteredPatients = patients?.patients?.filter((patient) => {
     const matchesSearch =
-      patient.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.phone.toLowerCase().includes(searchQuery.toLowerCase());
+      (patient?.fullName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (patient?.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (patient?.phone?.toLowerCase() || "").includes(searchQuery.toLowerCase());
 
     const matchesCategory =
       selectedCategory === "all" || patient.category === selectedCategory;

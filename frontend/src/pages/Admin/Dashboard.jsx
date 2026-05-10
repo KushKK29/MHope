@@ -1,5 +1,5 @@
 import { FaUserDoctor } from "react-icons/fa6";
-import { MdPerson2 } from "react-icons/md";
+import { MdPerson2, MdGroup } from "react-icons/md";
 import { CiViewTimeline } from "react-icons/ci";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { MdAppRegistration } from "react-icons/md";
@@ -299,7 +299,7 @@ const Dashboard = () => {
           </h1>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
             <StatCard
               title="Total Patients"
               value={data?.totalPatients || "0"}
@@ -309,6 +309,11 @@ const Dashboard = () => {
               title="Total Doctors"
               value={data?.totalDoctors || "0"}
               icon={<FaUserDoctor size={18} />}
+            />
+            <StatCard
+              title="Total Users"
+              value={data?.totalUsers || "0"}
+              icon={<MdGroup size={18} />}
             />
             <StatCard
               title="Total Appointments"
