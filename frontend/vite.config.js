@@ -17,26 +17,13 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('flowbite-react') || id.includes('flowbite')) {
-              return 'vendor-flowbite';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-framer';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-lucide';
-            }
-            return 'vendor';
-          }
-        },
+        manualChunks: {
+          'vendor-ui': ['flowbite-react', 'framer-motion', 'lucide-react', 'react-icons'],
+          'vendor-core': ['react', 'react-dom', 'react-router-dom', 'axios'],
+        }
       },
     },
   },
