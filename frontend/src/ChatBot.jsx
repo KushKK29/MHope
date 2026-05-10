@@ -9,7 +9,7 @@ import { ChatBubbleIcon } from "@radix-ui/react-icons";
 import { Send, Loader, X, Maximize2, Minimize2 } from "lucide-react";
 
 const GeminiChatbot = () => {
-  const apiKey = "AIzaSyDC9KZPk178lSOYC8baYo1wP9ZnxUobI2o";
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
